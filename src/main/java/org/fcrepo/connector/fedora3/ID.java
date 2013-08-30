@@ -17,6 +17,7 @@
 package org.fcrepo.connector.fedora3;
 
 import org.fcrepo.jcr.utils.NameUtil;
+import org.modeshape.jcr.api.JcrConstants;
 
 /**
  * Encapsualtes the logic associated with mapping ids within the
@@ -56,7 +57,13 @@ public class ID {
      * Gets a name for the node with this id.
      */
     public String getName() {
-        return id;
+        if (isRootID()) {
+            return "/";
+        } else if (isContentID()) {
+            return JcrConstants.JCR_CONTENT;
+        } else {
+            return id.substring(id.lastIndexOf('/') + 1);
+        }
     }
 
     /**
@@ -173,6 +180,7 @@ public class ID {
      */
     public static ID contentID(String pid, String datastream) {
         return new ID(NameUtil.encodeForLocalName(pid) + "/"
-                + NameUtil.encodeForLocalName(datastream) + "/content");
+                + NameUtil.encodeForLocalName(datastream) + "/"
+                + JcrConstants.JCR_CONTENT);
     }
 }

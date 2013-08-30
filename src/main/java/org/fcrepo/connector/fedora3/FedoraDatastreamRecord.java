@@ -16,6 +16,10 @@
 
 package org.fcrepo.connector.fedora3;
 
+import java.util.Date;
+
+import org.modeshape.jcr.value.BinaryValue;
+
 public interface FedoraDatastreamRecord {
 
     /**
@@ -28,5 +32,20 @@ public interface FedoraDatastreamRecord {
      */
     public String getMimeType();
 
-    // todo: content, other properties
+    /**
+     * Gets the modification date for the datastream described by this record.
+     */
+    public Date getModificationDate();
+
+    /**
+     * Gets the creation date for the datastream described by this record.
+     */
+    public Date getCreatedDate();
+
+    /**
+     * Gets a JCR BinaryValue representing the content of the datastream.
+     */
+    public BinaryValue getContent() throws Exception;
+
+    // TODO: expose other properties
 }

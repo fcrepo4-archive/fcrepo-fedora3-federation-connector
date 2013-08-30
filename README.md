@@ -56,7 +56,8 @@ You can see the federation over your fedora 3 content at [http://localhost:8080/
 ## Caveats
 
 * right now, the number of objects in the repository that are exposed is reduced to 21 to simplify testing
-* datastream content isn't yet presented
-* versions are presented
+* datastream content doesn't yet behave properly
+* versions are not presented
 * a great deal of fedora 3 attributes and metadata aren't yet made available
+* no integration tests
 

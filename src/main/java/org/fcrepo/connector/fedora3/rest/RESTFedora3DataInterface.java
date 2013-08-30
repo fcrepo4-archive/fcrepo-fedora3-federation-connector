@@ -115,9 +115,7 @@ public class RESTFedora3DataInterface implements Fedora3DataInterface {
      */
     public FedoraDatastreamRecord getDatastream(String pid, String dsid) {
         try {
-            return new RESTFedoraDatastreamRecord(
-                    FedoraClient.getDatastream(pid, dsid).execute(fc)
-                    .getDatastreamProfile());
+            return new RESTFedoraDatastreamRecord(fc, pid, dsid);
         } catch (FedoraClientException e) {
             throw new RuntimeException(e);
         }

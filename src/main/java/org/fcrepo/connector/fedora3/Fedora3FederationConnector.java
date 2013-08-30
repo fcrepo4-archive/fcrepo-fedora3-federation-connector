@@ -64,6 +64,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
             NodeTypeManager nodeTypeManager)
         throws RepositoryException, IOException {
         super.initialize(registry, nodeTypeManager);
+
         LOGGER.trace("Initializing");
         try {
             if (fedoraUrl != null && username != null && password != null) {
@@ -115,13 +116,29 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
             writer.addMixinType(FEDORA_DATASTREAM);
             FedoraDatastreamRecord ds
                 = f3.getDatastream(id.getPid(), id.getDSID());
-            //writer.addProperty(JCR_LASTMODIFIED,
-            //        factories().getDateFactory().create(
-            //                ds.getModificationDate()));
-            //writer.addProperty(JCR_CREATED,
-            //        factories().getDateFactory().create(
-            //                ds.getCreatedDate()));
-            //addObjectChildren(writer, o);
+            writer.addProperty(JCR_LASTMODIFIED,
+                    factories().getDateFactory().create(
+                            ds.getModificationDate()));
+            writer.addProperty(JCR_CREATED,
+                    factories().getDateFactory().create(
+                            ds.getCreatedDate()));
+            ID contentId = ID.contentID(id.getPid(), id.getDSID());
+            writer.addChild(contentId.getId(), contentId.getName());
+            return writer.document();
+        } else if (id.isContentID()) {
+            // return a content node
+            FedoraDatastreamRecord ds = f3.getDatastream(id.getPid(),
+                    id.getDSID());
+            writer.setPrimaryType(JcrConstants.NT_RESOURCE);
+            writer.addMixinType(FEDORA_BINARY);
+            writer.setParent(id.getParentId());
+            try {
+                writer.addProperty(JcrConstants.JCR_DATA, ds.getContent());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            writer.setNotQueryable();
+            writer.addProperty(JcrConstants.JCR_MIME_TYPE, ds.getMimeType());
             return writer.document();
         } else {
             return null;
@@ -134,7 +151,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         String[] childPids = f3.getObjectPids(offset, pageSize + 1);
         for (String childPid : childPids) {
             ID childId = ID.objectID(childPid);
-            LOGGER.info("Added child " + childId.getId());
+            LOGGER.trace("Added child " + childId.getId());
             writer.addChild(childId.getId(), childId.getName());
         }
         // this is commented out because the UI requests all objects,
