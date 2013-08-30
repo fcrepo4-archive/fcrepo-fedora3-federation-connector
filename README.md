@@ -1,11 +1,9 @@
 # Fedora 3 Federation Connector
 
 This fedoration connector allows exposure of fedora 3 content in a running fedora 3 repository
-to appear within a fedora 4 repository.
+to appear within a fedora 4 repository.  To use this code, you'd need to have access to a fedora 3 repository.
 
 [Design Documentation](https://wiki.duraspace.org/display/FF/Design+-+Fedora+3+to+4+Upgrade)
-
-### Install and 
 
 ## Fetching the source code
 
@@ -54,4 +52,11 @@ $ mvn jetty:run
 ```
 
 You can see the federation over your fedora 3 content at [http://localhost:8080/rest/f3](http://localhost:8080/rest/f3)
+
+## Caveats
+
+* right now, the number of objects in the repository that are exposed is reduced to 21 to simplify testing
+* datastream content isn't yet presented
+* versions are presented
+* a great deal of fedora 3 attributes and metadata aren't yet made available
 
