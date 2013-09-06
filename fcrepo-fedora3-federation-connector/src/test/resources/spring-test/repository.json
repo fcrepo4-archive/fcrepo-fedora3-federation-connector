@@ -1,0 +1,35 @@
+{
+    "name" : "repo",
+    "jndiName" : "",
+    "workspaces" : {
+        "predefined" : [],
+        "default" : "default",
+        "allowCreation" : true
+    },
+    "storage" : {
+        "binaryStorage" : {
+            "type" : "transient",
+            "minimumBinarySizeInBytes" : 1
+        }
+    },
+    "security" : {
+        "anonymous" : {
+            "roles" : ["readonly","readwrite","admin"],
+            "useOnFailedLogin" : false
+        },
+        "providers" : [
+            { "classname" : "servlet" }
+        ]
+    },
+    "node-types" : ["fedora-node-types.cnd"]
+    "externalSources" : {
+        "fedora3" : {
+            "classname" : "org.fcrepo.connector.fedora3.Fedora3FederationConnector",
+            "projections" : [ "default:/f3 => /" ],
+            "fedoraUrl" : "http://fedoratest01.lib.virginia.edu:8080/fedora",
+            "username" : "fedoraAdmin",
+            "password" : "fedoraAdminDev",
+            "pageSize" : 5
+        }
+    }
+}
