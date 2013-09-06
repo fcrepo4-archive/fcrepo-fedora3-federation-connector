@@ -3,6 +3,21 @@
 This fedoration connector allows exposure of fedora 3 content in a running fedora 3 repository
 to appear within a fedora 4 repository.  To use this code, you'd need to have access to a fedora 3 repository.
 
+## Organization
+
+This module has 2 sub-modules.
+
+### local-legacy-fedora3
+
+A sub module that builds  jar file of a build of fedora 3 for use in
+cargo to support integration testing.
+
+### fcrepo-fedora3-federation-connector
+
+A federation connector with unit and integration tests rigging to expose
+fedora 3 conent in a fedora 4 repository.
+
+
 [Design Documentation](https://wiki.duraspace.org/display/FF/Design+-+Fedora+3+to+4+Upgrade)
 
 ## Fetching the source code

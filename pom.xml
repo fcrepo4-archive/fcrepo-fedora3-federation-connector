@@ -1,23 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
     <version>4.0.0-alpha-2-SNAPSHOT</version>
   </parent>
-  <artifactId>fcrepo-fedora3-federation-connector</artifactId>
+  <artifactId>fcrepo-fedora3-federation</artifactId>
   <name>${project.artifactId}</name>
   <description>
       A package of federation connectors that can be used to project
       over fedora 3 content.
   </description>
+  <packaging>pom</packaging>
+
   <properties>
-      <modeshape.version>3.4.0.Final</modeshape.version>
+    <fedora3.version>3.6.2</fedora3.version>
   </properties>
-  <packaging>bundle</packaging>
+
+  <modules>
+    <module>local-legacy-fedora3</module>
+    <module>fcrepo-fedora3-federation-connector</module>
+  </modules>
 
   <repositories>
-
     <repository>
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
@@ -29,25 +36,6 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-
   </repositories>
 
-    <dependencies>
-    <dependency>
-      <groupId>org.fcrepo</groupId>
-      <artifactId>fcrepo-kernel</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.yourmediashelf.fedora.client</groupId>
-      <artifactId>fedora-client-core</artifactId>
-      <version>0.7</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xercesImpl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
- </dependencies>
 </project>
