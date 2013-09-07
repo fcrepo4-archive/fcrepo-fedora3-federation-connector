@@ -21,7 +21,7 @@
             { "classname" : "servlet" }
         ]
     },
-    "node-types" : ["fedora-node-types.cnd"]
+    "node-types" : ["fedora-node-types.cnd"],
     "externalSources" : {
         "fedora3" : {
             "classname" : "org.fcrepo.connector.fedora3.Fedora3FederationConnector",

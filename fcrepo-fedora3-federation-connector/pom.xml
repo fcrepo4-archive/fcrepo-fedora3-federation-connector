@@ -174,7 +174,9 @@
           <!-- reserve a port under the property ${servlet.port} for integration
             tests -->
           <portNames>
+            <portName>test.port</portName>
             <portName>servlet.port</portName>
+            <portName>tomcat.ajp.port</portName>
           </portNames>
         </configuration>
         <executions>
@@ -205,7 +207,9 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
+            <test.port>${test.port}</test.port>
             <servlet.port>${servlet.port}</servlet.port>
+            <tomcat.ajp.port>${tomcat.ajp.port}</tomcat.ajp.port>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -217,6 +221,7 @@
           <configuration>
             <properties>
               <cargo.servlet.port>${servlet.port}</cargo.servlet.port>
+              <cargo.tomcat.ajp.port>${tomcat.ajp.port}</cargo.tomcat.ajp.port>
               <cargo.servlet.uriencoding>UTF-8</cargo.servlet.uriencoding>
               <cargo.jvmargs>-XX:MaxPermSize=512m -Xmx1024m</cargo.jvmargs>
               <cargo.logging>low</cargo.logging>
