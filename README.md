@@ -23,16 +23,26 @@ fedora 3 conent in a fedora 4 repository.
 ## Fetching the source code
 
 ```bash
-$ git clone https://github.com/mikedurbin/fcrepo-fedora3-federation-connector
+$ git clone https://github.com/futures/fcrepo-fedora3-federation-connector
 ```
 ### Update build configuration to include new module
 
-In fcrepo4/fcrepo4-webapp/pom.xml add
+The following steps reference a fcrepo4 source tree.  You can fetch this
+from https://github.com/futures/fcrepo4.
+
+In fcrepo4/fcrepo-webapp/pom.xml add
 
 	<dependency>
 	  <groupId>org.fcrepo</groupId>
 	  <artifactId>fcrepo-fedora3-federation-connector</artifactId>
 	  <version>${project.version}</version>
+	    <exclusions>
+	      <exclusion>
+	        <groupId>com.hp.hpl.jena</groupId>
+	        <artifactId>jena</artifactId>
+	      </exclusion>
+	    </exclusions>
+	  </dependency>
 	</dependency>
 
 In fcrepo4/fcrepo-kernel/src/main/resources/fedora-node-types.cnd add
@@ -42,7 +52,8 @@ In fcrepo4/fcrepo-kernel/src/main/resources/fedora-node-types.cnd add
 	 */
 	[fedora:repository]
 
-In fcrepo4/fcrepo-jcr/src/main/resources/config/single/repository.json (or whichever you're using) add
+In the json file referenced in fcrepo4/fcrepo-webapp/src/main/resources/spring/repo.xml, 
+(which at the time of this writing is fcrepo4/fcrepo-jcr/src/main/resources/config/rest-sessions/repository.json add
 
 	"externalSources" : {
 	  "fedora3" : {
@@ -59,7 +70,7 @@ Note: pageSize is optional and represents the size of pages of objects that are 
 repository node.
 
 ### Compile and install the code
-For each of the components modified above, as well as this project:
+For this project, then each of the components modified above:
 
 ```bash
 $ mvn clean install
