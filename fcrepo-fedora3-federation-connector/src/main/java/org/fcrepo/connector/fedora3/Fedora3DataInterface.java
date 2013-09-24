@@ -54,5 +54,4 @@ public interface Fedora3DataInterface {
      * with the given dsid.
      */
     public boolean doesDatastreamExist(String pid, String dsid);
-
 }

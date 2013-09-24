@@ -76,6 +76,7 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
             DefaultFedoraObjectRecordImpl r
                 = new DefaultFedoraObjectRecordImpl();
             r.pid = pid;
+            LOGGER.debug("Getting object profile for " + pid + ".");
             ObjectProfile op = FedoraClient.getObjectProfile(pid)
                     .execute(fc).getObjectProfile();
             r.createdDate = op.getObjCreateDate()
