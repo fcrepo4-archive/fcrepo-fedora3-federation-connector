@@ -15,12 +15,8 @@
       <property name="repositoryConfiguration" value="classpath:/config/repository.json"/>
     </bean>
 
-
-    <context:component-scan base-package="org.fcrepo.kernel.services, org.fcrepo.syndication"/>
-
-    <bean class="org.fcrepo.http.commons.session.SessionFactory" />
-    <bean class="org.fcrepo.kernel.identifiers.UUIDPidMinter"/>
-
     <bean class="org.modeshape.jcr.JcrRepositoryFactory"/>
 
+    <!-- For the time being, load annotation config here too -->
+    <bean class="org.fcrepo.metrics.MetricsConfig"/>
 </beans>

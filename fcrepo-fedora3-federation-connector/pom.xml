@@ -43,6 +43,10 @@
           <groupId>xerces</groupId>
           <artifactId>xercesImpl</artifactId>
         </exclusion>
+          <exclusion>
+            <groupId>com.hp.hpl.jena</groupId>
+            <artifactId>jena</artifactId>
+          </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -63,21 +67,15 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.fcrepo</groupId>
-      <artifactId>fcrepo-http-commons</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -89,12 +87,48 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-oauth</artifactId>
+      <version>${project.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-jcr</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-serialization</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-http-api</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-auth-common</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey.contribs</groupId>
+      <artifactId>jersey-spring</artifactId>
       <scope>test</scope>
     </dependency>
 

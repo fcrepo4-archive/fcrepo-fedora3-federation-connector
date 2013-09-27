@@ -3,6 +3,7 @@ target/
 .settings/
 .project
 .metadata
+.idea
 ActiveMQ/
 FedoraRepository/
 indexes/
@@ -11,3 +12,4 @@ ObjectStore/
 .cache
 .DS_Store
 *~
+*.iml

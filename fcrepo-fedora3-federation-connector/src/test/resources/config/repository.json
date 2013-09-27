@@ -18,7 +18,7 @@
             "useOnFailedLogin" : false
         },
         "providers" : [
-            { "classname" : "servlet" }
+            { "classname" : "org.fcrepo.http.commons.session.BypassSecurityServletAuthenticationProvider" }
         ]
     },
     "node-types" : ["fedora-node-types.cnd"],
@@ -28,7 +28,7 @@
             "projections" : [ "default:/f3 => /" ],
             "fedoraUrl" : "http://localhost:${servlet.port}/fedora",
             "username" : "fedoraAdmin",
-            "password" : "fedoraAdmin",
+            "password" : "fc",
             "pageSize" : 5
         }
     }
