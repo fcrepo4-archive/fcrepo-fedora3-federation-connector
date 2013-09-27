@@ -16,14 +16,6 @@
 
 package org.fcrepo.connector.fedora3;
 
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-
-import javax.jcr.NamespaceRegistry;
-import javax.jcr.RepositoryException;
-
 import org.fcrepo.connector.fedora3.rest.RESTFedora3DataImpl;
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.fcrepo.kernel.utils.ContentDigest;
@@ -34,9 +26,18 @@ import org.modeshape.jcr.federation.spi.DocumentWriter;
 import org.modeshape.jcr.federation.spi.PageKey;
 import org.modeshape.jcr.federation.spi.Pageable;
 import org.modeshape.jcr.federation.spi.ReadOnlyConnector;
+import org.modeshape.jcr.value.BinaryKey;
 import org.modeshape.jcr.value.BinaryValue;
+import org.modeshape.jcr.value.binary.ExternalBinaryValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.RepositoryException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A ReadOnly connector to a fedora 3 repository.
@@ -115,6 +116,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         LOGGER.trace("getDocumentById {}", idStr);
         ID id = new ID(idStr);
         DocumentWriter writer = newDocument(idStr);
+        writer.setNotQueryable();
         if (id.isRootID()) {
             // return a root object
             writer.setPrimaryType(JcrConstants.NT_FOLDER);
@@ -167,13 +169,13 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
             writer.setParent(id.getParentId());
             writer.addMixinType(FEDORA_BINARY);
             try {
-                BinaryValue binary = ds.getContent();
+                BinaryValue binary = new Fedora3DatastreamBinaryValue(ds);
+                writer.addProperty(JcrConstants.JCR_DATA, binary);
                 LOGGER.trace("{} size: {}", ds.getId(), binary.getSize());
                 LOGGER.trace("{} hash: {}", ds.getId(), binary.getHexHash());
                 writer.addProperty(CONTENT_DIGEST, ContentDigest.
-                        asURI("SHA-1", binary.getHexHash()).toString());
+                        asURI("SHA-1", binary.getHexHash()));
                 writer.addProperty(CONTENT_SIZE, binary.getSize());
-                writer.addProperty(JcrConstants.JCR_DATA, binary);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -249,6 +251,55 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         } else {
             // get the datastreams
             throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets an ExternalBinaryValue that exposes access to content nodes in
+     * the federation.
+     */
+    public ExternalBinaryValue getBinaryValue(String idStr) {
+        ID id = new ID(idStr);
+        FedoraDatastreamRecord ds = f3.getDatastream(id.getPid(),
+                id.getDSID());
+        try {
+            return new Fedora3DatastreamBinaryValue(ds);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public class Fedora3DatastreamBinaryValue extends ExternalBinaryValue {
+
+        private static final long serialVersionUID = 1L;
+
+        private FedoraDatastreamRecord ds;
+
+        Fedora3DatastreamBinaryValue(FedoraDatastreamRecord ds) throws Exception {
+            super(new BinaryKey(ds.getSha1()),
+                    Fedora3FederationConnector.this.getSourceName(),
+                    ID.contentID(ds.getPid(), ds.getId()).getId(),
+                    ds.getContentLength(), null, null);
+            this.ds = ds;
+        }
+
+        /**
+         * Gets the InputStream for the content.
+         */
+        public InputStream getStream() throws RepositoryException {
+            try {
+                return ds.getStream();
+            } catch (Exception e) {
+                throw new RepositoryException(e);
+            }
+        }
+
+        /**
+         * Overrides the superclass to return the MIME type declared on the
+         * fedora 3 datastream whose content is exposed by this BinaryValue.
+         */
+        public String getMimeType() {
+            return ds.getMimeType();
         }
     }
 }

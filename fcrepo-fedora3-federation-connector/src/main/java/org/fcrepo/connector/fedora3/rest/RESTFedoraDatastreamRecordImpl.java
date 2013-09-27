@@ -21,15 +21,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.InputStream;
 import java.util.Date;
 
-import javax.jcr.RepositoryException;
-
 import org.fcrepo.connector.fedora3.FedoraDatastreamRecord;
-import org.fcrepo.connector.fedora3.ID;
 import org.modeshape.common.util.SecureHash;
 import org.modeshape.common.util.SecureHash.Algorithm;
-import org.modeshape.jcr.value.BinaryKey;
-import org.modeshape.jcr.value.BinaryValue;
-import org.modeshape.jcr.value.binary.ExternalBinaryValue;
 import org.slf4j.Logger;
 
 import com.yourmediashelf.fedora.client.FedoraClient;
@@ -67,13 +61,29 @@ public class RESTFedoraDatastreamRecordImpl
      * fedora 3 datastream to be described by this object.
      */
     public RESTFedoraDatastreamRecordImpl(FedoraClient fc, String pid,
-            String dsId)
-        throws FedoraClientException {
+            String dsId) throws FedoraClientException {
         this.fc = fc;
         this.pid = pid;
         this.dsid = dsId;
+        LOGGER.debug("Getting datastream profile for " + pid + "." + dsId);
         ds = FedoraClient.getDatastream(pid, dsId).execute(fc)
                 .getDatastreamProfile();
+        if (!ds.getPid().equals(pid)) {
+            throw new RuntimeException("Pid mismatch! " + pid + " != "
+                     + ds.getPid());
+        }
+        if (!ds.getDsID().equals(dsid)) {
+            throw new RuntimeException("DSID mismatch! " + dsid + " != "
+                    + ds.getDsID());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getPid() {
+        return ds.getPid();
     }
 
     /**
@@ -81,6 +91,13 @@ public class RESTFedoraDatastreamRecordImpl
      */
     public String getId() {
         return ds.getDsID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public long getContentLength() {
+        return ds.getDsSize().longValue();
     }
 
     /**
@@ -106,9 +123,12 @@ public class RESTFedoraDatastreamRecordImpl
 
     /**
      * {@inheritDoc}
+     * The current implementation provides an InputStream directly from an
+     * authenticated request to the Fedora 3 rest API.
      */
-    public BinaryValue getContent() throws Exception {
-        return new Fedora3DatastreamBinaryValue();
+    public InputStream getStream() throws Exception {
+        return FedoraClient.getDatastreamDissemination(pid, dsid)
+                .execute(fc).getEntityInputStream();
     }
 
     /**
@@ -158,33 +178,4 @@ public class RESTFedoraDatastreamRecordImpl
         return data;
     }
 
-    public class Fedora3DatastreamBinaryValue extends ExternalBinaryValue {
-
-        private FedoraClient fc;
-
-        private Fedora3DatastreamBinaryValue() throws Exception {
-            super(new BinaryKey(getSha1()), ds.getDsID(), ID.contentID(pid,
-                    dsid).getId(), ds.getDsSize().longValue(), null, null);
-        }
-
-        /**
-         * Gets the InputStream for the content.
-         */
-        public InputStream getStream() throws RepositoryException {
-            try {
-                return FedoraClient.getDatastreamDissemination(pid, dsid)
-                        .execute(fc).getEntityInputStream();
-            } catch (FedoraClientException e) {
-                throw new RepositoryException(e);
-            }
-        }
-
-        /**
-         * Overrides the superclass to return the MIME type declared on the
-         * fedora 3 datastream whose content is exposed by this BinaryValue.
-         */
-        public String getMimeType() {
-            return ds.getDsMIME();
-        }
-    }
 }

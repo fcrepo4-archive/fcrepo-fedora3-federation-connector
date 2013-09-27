@@ -71,9 +71,7 @@ public class Fedora3FederationConnectorTest {
         changeme2.datastreams = Arrays.asList(new String[] { "DC", "RELS-EXT"});
         when(mockF3.getObjectByPid("changeme:2")).thenReturn(changeme2);
         when(mockF3.getDatastream("changeme:2", "DC")).thenReturn(mockDCDatastream);
-        when(mockDCDatastream.getContent()).thenReturn(mockBinaryValue);
-        when(mockBinaryValue.getHexHash()).thenReturn("00000000");
-        when(mockBinaryValue.getSize()).thenReturn((long) 100);
+        when(mockDCDatastream.getSha1()).thenReturn(new byte[] {'F', 'A' } );
         when(mockF3.doesObjectExist("changeme:1")).thenReturn(true);
         when(mockF3.doesObjectExist("changeme:2")).thenReturn(true);
         when(mockF3.doesDatastreamExist("changeme:2", "DC")).thenReturn(true);
@@ -123,6 +121,16 @@ public class Fedora3FederationConnectorTest {
     @Test
     public void testGetChildren() {
         c.getChildren(new PageKey(ID.ROOT_ID.getId(), "0", 100));
+    }
+
+    @Test
+    public void testGetDocumentId() {
+        c.getDocumentId("/test");
+    }
+
+    @Test
+    public void testGetDocumentPathsById() {
+        c.getDocumentPathsById(ID.datastreamID("changeme:1", "DC").getId());
     }
 
     /**

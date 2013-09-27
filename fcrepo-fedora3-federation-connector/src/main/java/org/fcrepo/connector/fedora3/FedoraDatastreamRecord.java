@@ -16,9 +16,8 @@
 
 package org.fcrepo.connector.fedora3;
 
+import java.io.InputStream;
 import java.util.Date;
-
-import org.modeshape.jcr.value.BinaryValue;
 
 /**
  * An interface to expose enough information about a Fedora 3 datastream to
@@ -27,6 +26,11 @@ import org.modeshape.jcr.value.BinaryValue;
  * @author Michael Durbin
  */
 public interface FedoraDatastreamRecord {
+
+    /**
+     * Gets the pid of the object whose datastream is represented.
+     */
+    public String getPid();
 
     /**
      * Gets the DSID.
@@ -49,9 +53,19 @@ public interface FedoraDatastreamRecord {
     public Date getCreatedDate();
 
     /**
-     * Gets a JCR BinaryValue representing the content of the datastream.
+     * Gets a new InputStream to access the content of the datastream.
      */
-    public BinaryValue getContent() throws Exception;
+    public InputStream getStream() throws Exception;
+
+    /**
+     * Gets the length in bytes of the content of the datastream.
+     */
+    public long getContentLength();
+
+    /**
+     * Gets (or computes) a SHA-1 hash of the content of the datastream.
+     */
+    public byte[] getSha1() throws Exception;
 
     // TODO: expose other properties
 }

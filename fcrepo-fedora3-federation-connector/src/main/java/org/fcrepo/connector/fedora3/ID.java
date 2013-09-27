@@ -16,6 +16,7 @@
 
 package org.fcrepo.connector.fedora3;
 
+import org.fcrepo.jcr.FedoraJcrTypes;
 import org.modeshape.common.text.Jsr283Encoder;
 import org.modeshape.jcr.api.JcrConstants;
 
@@ -44,7 +45,7 @@ import org.modeshape.jcr.api.JcrConstants;
  * 
  * @author Michael Durbin
  */
-public class ID {
+public class ID implements FedoraJcrTypes {
 
     private String id;
 
@@ -73,6 +74,18 @@ public class ID {
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * Gets the URL path (relative to the federation root) that would address
+     * the node with this id.
+     */
+    public String getURLPath() {
+        if (isContentID()) {
+            return getId().replace(JcrConstants.JCR_CONTENT, FCR_CONTENT);
+        } else {
+            return getId();
+        }
     }
 
     /**

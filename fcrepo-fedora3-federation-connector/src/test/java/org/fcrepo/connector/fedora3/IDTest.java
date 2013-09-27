@@ -38,6 +38,7 @@ public class IDTest {
         Assert.assertNull("The root id should have no parent.", ID.ROOT_ID.getParentId());
         Assert.assertTrue("The root name should have at least one character.", ID.ROOT_ID.getName().length() >= 1);
         Assert.assertNull("The root id should not be associated with any pid.", ID.ROOT_ID.getPid());
+        Assert.assertEquals("The id should be the same as the web path.", ID.ROOT_ID.getId(), ID.ROOT_ID.getURLPath());
     }
 
     @Test
@@ -56,6 +57,8 @@ public class IDTest {
                 id.getParentId().equals(ID.ROOT_ID.getId()));
         Assert.assertNull("The object ID should not contain a dsid.",
                 id.getDSID());
+        Assert.assertEquals("The id should be the same as the web path.",
+                id.getId(), id.getURLPath());
     }
 
     @Test
@@ -76,6 +79,8 @@ public class IDTest {
                 id.getParentId(), objectId.getId());
         Assert.assertEquals("The datastream ID should contain a dsid.",
                 id.getDSID(), dsId);
+        Assert.assertEquals("The id should be the same as the web path.",
+                id.getId(), id.getURLPath());
     }
 
     @Test
@@ -98,7 +103,11 @@ public class IDTest {
                 id.getParentId(), datastreamId.getId());
         Assert.assertEquals("The content ID should contain a dsid.",
                 id.getDSID(), dsId);
-        Assert.assertEquals("The content ID should be the JCR constant.", id.getName(), JcrConstants.JCR_CONTENT);
+        Assert.assertEquals("The content ID should be the JCR constant.",
+                id.getName(), JcrConstants.JCR_CONTENT);
+        Assert.assertEquals("The id should not be the same as the web path.",
+                id.getId(),
+                id.getURLPath().replace("fcr:content", "jcr:content"));
     }
 
         /**
