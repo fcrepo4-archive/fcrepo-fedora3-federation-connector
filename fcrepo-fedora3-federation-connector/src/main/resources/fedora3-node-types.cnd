@@ -13,7 +13,7 @@
 
 /*
  * Dublin Core. See:
- * 
+ *
  * http://dublincore.org/documents/dcmi-namespace/
  */
 <dc = 'http://purl.org/dc/terms/'>
@@ -27,9 +27,12 @@
 
 <test = 'info:fedora/test/'>
 
+ /* Fedora 3 Namespace */
+ <f3 = 'http://fedora.info/definitions/v3/rest-api#'>
+
 /*
  * The following relationship properties are made available in support of legacy graph constructions from the
- * Fedora 3 era that use direct resource-to-resource relationships. New work would be best accomplished by 
+ * Fedora 3 era that use direct resource-to-resource relationships. New work would be best accomplished by
  * using literal-valued properties with defined semantics and associated vocabularies, or by directly using
  * JCR technical idioms like hierarchy.
  */
@@ -88,4 +91,62 @@
   /*
    * A federated fedora 3 repository
    */
- [fedora:repository]
+ [f3:repository]
+
+ /*
+  * The following properties represent the fedora 3 object properties.  These
+  * allow lossless and reversible representation of fedora 3 object properties
+  * in fedora4, though when possible, these properties should *also* be
+  * represented as the fedora4 equivalent.
+  *
+  * The schema is more relaxed than the actual application code, but has been
+  * used as a reference: http://www.fedora.info/definitions/1/0/foxml1-1.xsd
+  */
+ [f3:objectProperties] mixin
+   - f3:pid (STRING) mandatory protected IGNORE
+   - f3:objState (STRING) IGNORE
+   - f3:objLabel (STRING) IGNORE
+   - f3:objOwnerId (STRING) multiple IGNORE
+   - f3:objCreatedDate (DATE) mandatory IGNORE
+   - f3:objLastModifiedDate (DATE) mandatory IGNORE
+
+ /*
+  * The following properties represent the fedora 3 datastream properties.
+  */
+ [f3:datastreamProperties] mixin
+
+   - f3:dsid (STRING) protected mandatory IGNORE
+   - f3:dsControlGroup (STRING) protected mandatory IGNORE < 'X', 'M', 'R', 'E'
+   - f3:dsState (STRING) IGNORE < 'A', 'D', 'I'
+   - f3:dsVersionable (BOOLEAN) IGNORE
+
+ /*
+  * The following properties represent the fedora 3 properties associated with
+  * each version of a datastream
+  */
+[f3:datastreamVersionProperties] mixin
+  - f3:dsVersionId (STRING) protected mandatory
+  - f3:dsLabel (STRING)
+  - f3:dsCreated (DATE) mandatory
+  - f3:dsMimeType (STRING) mandatory
+  - f3:dsFormatURI (STRING)
+  - f3:dsAltIds (URI) multiple
+  - f3:dsSize (LONG)
+  - f3:dsContentDigestType (STRING) < 'MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512', 'HAVEL', 'TIGER', 'WHIRLPOOL', 'DISABLED'
+  - f3:dsContentDigest
+
+/*
+ * A Fedora 3 object.
+ */
+[f3:object] > f3:objectProperties mixin
+  - * (undefined) multiple
+  - * (undefined)
+
+/*
+ * A Fedora 3 datastream
+ */
+ [f3:datastream] > f3:datastreamProperties, f3:datastreamVersionProperties mixin
+  - * (undefined) multiple
+  - * (undefined)
+
+

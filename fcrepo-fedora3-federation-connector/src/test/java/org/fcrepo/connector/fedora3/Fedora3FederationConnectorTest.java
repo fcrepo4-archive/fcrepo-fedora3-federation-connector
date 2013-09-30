@@ -21,10 +21,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.jcr.RepositoryException;
 
-import org.fcrepo.connector.fedora3.rest.DefaultFedoraObjectRecordImpl;
+import org.fcrepo.connector.fedora3.rest.AbstractFedoraObjectRecord;
+import org.fcrepo.connector.fedora3.rest.RESTFedoraDatastreamRecordImplTest;
+import org.fcrepo.jcr.FedoraJcrTypes;
 import org.infinispan.schematic.document.EditableDocument;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,13 +41,11 @@ import org.modeshape.jcr.value.BinaryValue;
 /**
  * @author Michael Durbin
  */
-public class Fedora3FederationConnectorTest {
+public class Fedora3FederationConnectorTest implements FedoraJcrTypes {
 
     @Mock Fedora3DataInterface mockF3;
 
     @Mock BinaryValue mockBinaryValue;
-
-    @Mock FedoraDatastreamRecord mockDCDatastream;
 
     @Mock EditableDocument mockument;
 
@@ -62,16 +63,14 @@ public class Fedora3FederationConnectorTest {
         MockitoAnnotations.initMocks(this);
 
         when(mockF3.getObjectPids(anyInt(), anyInt())).thenReturn(new String[] { "changeme:1", "changeme:2" });
-        DefaultFedoraObjectRecordImpl changeme1 = new DefaultFedoraObjectRecordImpl();
-        changeme1.pid = "changeme:1";
+        FedoraObjectRecord changeme1 = new MockObjectRecord("changeme:1");
         when(mockF3.getObjectByPid("changeme:1")).thenReturn(changeme1);
-        changeme1.datastreams = new ArrayList<String>();
-        DefaultFedoraObjectRecordImpl changeme2 = new DefaultFedoraObjectRecordImpl();
-        changeme2.pid = "changeme:2";
-        changeme2.datastreams = Arrays.asList(new String[] { "DC", "RELS-EXT"});
+        FedoraObjectRecord changeme2
+            = new MockObjectRecord("changeme:2", "DC", "RELS-EXT");
         when(mockF3.getObjectByPid("changeme:2")).thenReturn(changeme2);
-        when(mockF3.getDatastream("changeme:2", "DC")).thenReturn(mockDCDatastream);
-        when(mockDCDatastream.getSha1()).thenReturn(new byte[] {'F', 'A' } );
+        when(mockF3.getDatastream("changeme:2", "DC")).thenReturn(
+                RESTFedoraDatastreamRecordImplTest.getDSRecord(
+                "mocked-responses/changeme_2/dc-datastream-history.xml"));
         when(mockF3.doesObjectExist("changeme:1")).thenReturn(true);
         when(mockF3.doesObjectExist("changeme:2")).thenReturn(true);
         when(mockF3.doesDatastreamExist("changeme:2", "DC")).thenReturn(true);
@@ -119,6 +118,13 @@ public class Fedora3FederationConnectorTest {
     }
 
     @Test
+    public void testBinaryValueMechanism() {
+        String contentId = ID.contentID("changeme:2", "DC").getId();
+        BinaryValue callBack = c.getBinaryValue(contentId);
+    }
+
+
+    @Test
     public void testGetChildren() {
         c.getChildren(new PageKey(ID.ROOT_ID.getId(), "0", 100));
     }
@@ -145,6 +151,17 @@ public class Fedora3FederationConnectorTest {
         public DocumentWriter newDocument(String id) {
             when(mockumentWriter.document()).thenReturn(mockument);
             return mockumentWriter;
+        }
+    }
+
+    /**
+     * A mock FedoraObjectRecord instance with minimal parameters.
+     */
+    private class MockObjectRecord extends AbstractFedoraObjectRecord {
+
+        protected MockObjectRecord(String pid, String ... dsids) {
+            super(pid, new Date(), new Date());
+            super.datastreams = Arrays.asList(dsids);
         }
     }
 }

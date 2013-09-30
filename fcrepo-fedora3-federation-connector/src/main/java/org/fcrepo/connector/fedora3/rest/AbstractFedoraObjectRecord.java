@@ -22,26 +22,66 @@ import java.util.List;
 import org.fcrepo.connector.fedora3.FedoraObjectRecord;
 
 /**
- * A default implementation of the FedoraObjectRecord with package protected
- * member variables that contain the results of the few required methods.
+ * An abstract base class for the FedoraObjectRecord with convenient member
+ * variables and accessor methods for all of the interface methods.  Because
+ * this object is expected to be immutable, subclasses need only implement a
+ * constructor.
  * 
  * @author Michael Durbin
  */
-public class DefaultFedoraObjectRecordImpl implements FedoraObjectRecord {
+public abstract class AbstractFedoraObjectRecord implements FedoraObjectRecord {
 
-    public String pid;
+    private String pid;
 
-    public Date lastModDate;
+    protected String state;
 
-    public Date createdDate;
+    protected String label;
 
-    public List<String> datastreams;
+    protected List<String> ownerIds;
+
+    private Date createdDate;
+
+    private Date lastModDate;
+
+    protected List<String> datastreams;
+
+    /**
+     * A constructor that accepts the three required properties of a fedora 3
+     * object.
+     */
+    protected AbstractFedoraObjectRecord(String pid, Date createdDate,
+                                         Date lastModifiedDate) {
+        this.pid = pid;
+        this.createdDate = createdDate;
+        this.lastModDate = lastModifiedDate;
+    }
 
     /**
      * {@inheritDoc}
      */
     public String getPid() {
         return pid;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<String> getOwnerIds() {
+        return ownerIds;
     }
 
     /**
