@@ -16,22 +16,21 @@
 
 package org.fcrepo.connector.fedora3.rest;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.InputStream;
-import java.util.Date;
-
+import com.yourmediashelf.fedora.client.FedoraClient;
+import com.yourmediashelf.fedora.client.FedoraClientException;
+import com.yourmediashelf.fedora.generated.management.DatastreamProfile;
 import org.fcrepo.connector.fedora3.FedoraDatastreamRecord;
+import org.fcrepo.connector.fedora3.FedoraDatastreamVersionRecord;
 import org.modeshape.common.util.SecureHash;
 import org.modeshape.common.util.SecureHash.Algorithm;
 import org.slf4j.Logger;
 
-import com.yourmediashelf.fedora.client.FedoraClient;
-import com.yourmediashelf.fedora.client.FedoraClientException;
-import com.yourmediashelf.fedora.generated.management.DatastreamProfile;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-// TODO: add a date-time to ensure that the content is the same as
-// the date the hash was computed
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * An implementation of {@link FedoraDatastreamRecord} that gets all of its
@@ -49,11 +48,7 @@ public class RESTFedoraDatastreamRecordImpl
 
     private FedoraClient fc;
 
-    private String pid;
-
-    private String dsid;
-
-    private byte[] sha1;
+    private List<FedoraDatastreamVersionRecord> history;
 
     /**
      * A constructor that takes as a parameter the DatastreamType object that
@@ -61,22 +56,33 @@ public class RESTFedoraDatastreamRecordImpl
      * fedora 3 datastream to be described by this object.
      */
     public RESTFedoraDatastreamRecordImpl(FedoraClient fc, String pid,
-            String dsId) throws FedoraClientException {
-        this.fc = fc;
-        this.pid = pid;
-        this.dsid = dsId;
-        LOGGER.debug("Getting datastream profile for " + pid + "." + dsId);
-        ds = FedoraClient.getDatastream(pid, dsId).execute(fc)
-                .getDatastreamProfile();
+            String dsid) throws FedoraClientException {
+        this(fc, FedoraClient.getDatastreamHistory(pid, dsid)
+                .execute(fc).getDatastreamProfile().getDatastreamProfile());
         if (!ds.getPid().equals(pid)) {
             throw new RuntimeException("Pid mismatch! " + pid + " != "
-                     + ds.getPid());
+                    + ds.getPid());
         }
         if (!ds.getDsID().equals(dsid)) {
             throw new RuntimeException("DSID mismatch! " + dsid + " != "
                     + ds.getDsID());
         }
+    }
 
+    /**
+     * This part of object construction is only separated into a protected
+     * constructor for unit testing as it allows mock DatastreamProfile
+     * objects to be provided and used (which allows most calls to be tested
+     * with a null FedoraClient.
+     */
+    protected RESTFedoraDatastreamRecordImpl(FedoraClient fc,
+            List<DatastreamProfile> dsProfiles) {
+        history = new ArrayList<FedoraDatastreamVersionRecord>();
+        for (DatastreamProfile version : dsProfiles) {
+            history.add(new Version(version));
+        }
+        ds = dsProfiles.get(0);
+        this.fc = fc;
     }
 
     /**
@@ -93,74 +99,170 @@ public class RESTFedoraDatastreamRecordImpl
         return ds.getDsID();
     }
 
+
     /**
      * {@inheritDoc}
      */
-    public long getContentLength() {
-        return ds.getDsSize().longValue();
+    public String getControlGroup() {
+        return ds.getDsControlGroup();
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getMimeType() {
-        return ds.getDsMIME();
+    public String getState() {
+        return blankToNull(ds.getDsState());
     }
 
     /**
      * {@inheritDoc}
      */
-    public Date getModificationDate() {
-        return ds.getDsCreateDate().toGregorianCalendar().getTime();
+    public boolean getVersionable() {
+        return "true".equals(ds.getDsVersionable());
     }
 
     /**
      * {@inheritDoc}
      */
-    public Date getCreatedDate() {
-        return ds.getDsCreateDate().toGregorianCalendar().getTime();
+    public List<FedoraDatastreamVersionRecord> getHistory() {
+        return history;
     }
 
     /**
      * {@inheritDoc}
-     * The current implementation provides an InputStream directly from an
-     * authenticated request to the Fedora 3 rest API.
      */
-    public InputStream getStream() throws Exception {
-        return FedoraClient.getDatastreamDissemination(pid, dsid)
-                .execute(fc).getEntityInputStream();
+    public FedoraDatastreamVersionRecord getCurrentVersion() {
+        return history.get(0);
     }
 
-    /**
-     * Gets a SHA1 hash of the content of the datastreams.  The current
-     * implementation checks first to see if fedora 3 provides this information
-     * and failing that, computes it.
-     * @throws FedoraClientException
-     */
-    public byte[] getSha1() throws Exception {
-        if (sha1 != null) {
-            return sha1;
+    private String blankToNull(String value) {
+        if (value == null || value.trim().equals("")) {
+            return null;
         }
-        if (ds.getDsChecksumType().equalsIgnoreCase("SHA-1")
-                && ds.getDsChecksum() != null) {
-            sha1 = getSha1BytesFromHexString(ds.getDsChecksum());
-            LOGGER.trace("Loaded SHA1 for " + pid + " " + dsid
-                    + " from repository.");
-            return sha1;
-        } else {
-            long start = System.currentTimeMillis();
-            InputStream is = FedoraClient.getDatastreamDissemination(pid, dsid)
+        return value;
+    }
+
+    private class Version implements FedoraDatastreamVersionRecord {
+
+        private byte[] sha1;
+
+        DatastreamProfile dsVer;
+
+        public Version(DatastreamProfile version) {
+            dsVer = version;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getVersionId() {
+            return dsVer.getDsVersionID();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getLabel() {
+            return blankToNull(dsVer.getDsLabel());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Date getCreatedDate() {
+            return dsVer.getDsCreateDate().toGregorianCalendar().getTime();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getMimeType() {
+            return dsVer.getDsMIME();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getFormatURI() {
+            return blankToNull(dsVer.getDsFormatURI());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public List<String> getAltIDs() {
+            return dsVer.getDsAltID();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getContentDigestType() {
+            return "DISABLED".equals(dsVer.getDsChecksumType())
+                    ? null
+                    : dsVer.getDsChecksumType();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getContentDigest() {
+            return "none".equals(dsVer.getDsChecksum())
+                    ? null
+                    : dsVer.getDsChecksum();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public long getContentLength() {
+            return dsVer.getDsSize().longValue();
+        }
+
+        /**
+         * {@inheritDoc}
+         * The current implementation provides an InputStream directly from an
+         * authenticated request to the Fedora 3 rest API.
+         */
+        public InputStream getStream() throws Exception {
+            return FedoraClient.getDatastreamDissemination(getPid(), getId())
+                    .asOfDateTime(dsVer.getDsCreateDate().toString())
                     .execute(fc).getEntityInputStream();
-            try {
-                sha1 = SecureHash.getHash(Algorithm.SHA_1, is);
+        }
+
+        /**
+         * Gets a SHA1 hash of the content of the datastreams.  The current
+         * implementation checks first to see if fedora 3 provides this
+         * information and failing that, computes it.
+         */
+        public byte[] getSha1() throws Exception {
+            if (sha1 != null) {
                 return sha1;
-            } finally {
-                is.close();
-                LOGGER.trace("Computed SHA-1 from " + dsid + " on " + pid
-                        + " in " + (System.currentTimeMillis() - start)
-                        + "ms.");
+            }
+            if (dsVer.getDsChecksumType().equalsIgnoreCase("SHA-1")
+                    && dsVer.getDsChecksum() != null) {
+                sha1 = getSha1BytesFromHexString(dsVer.getDsChecksum());
+                LOGGER.trace("Loaded SHA1 for " + getPid() + " " + getId()
+                        + " from repository.");
+                return sha1;
+            } else {
+                long start = System.currentTimeMillis();
+                InputStream is = FedoraClient.getDatastreamDissemination(
+                        getPid(), getId())
+                        .asOfDateTime(dsVer.getDsCreateDate().toString())
+                        .execute(fc).getEntityInputStream();
+                try {
+                    sha1 = SecureHash.getHash(Algorithm.SHA_1, is);
+                    return sha1;
+                } finally {
+                    is.close();
+                    LOGGER.trace("Computed SHA-1 from " + getId() + " on "
+                            + getPid() + " in "
+                            + (System.currentTimeMillis() - start) + "ms.");
+                }
             }
         }
+
     }
 
     /**
@@ -173,9 +275,8 @@ public class RESTFedoraDatastreamRecordImpl
         for (int i = 0; i < len; i += 2) {
             data[i / 2]
                 = (byte) ((Character.digit(hexStr.charAt(i), 16) << 4)
-                + Character.digit(hexStr.charAt(i + 1), 16));
+                    + Character.digit(hexStr.charAt(i + 1), 16));
         }
         return data;
     }
-
 }

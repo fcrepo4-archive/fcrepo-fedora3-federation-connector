@@ -45,13 +45,6 @@ In fcrepo4/fcrepo-webapp/pom.xml add
 	  </dependency>
 	</dependency>
 
-In fcrepo4/fcrepo-kernel/src/main/resources/fedora-node-types.cnd add
-
-	/*
-	 * A federated fedora 3 repository
-	 */
-	[fedora:repository]
-
 In the json file referenced in fcrepo4/fcrepo-webapp/src/main/resources/spring/repo.xml, 
 (which at the time of this writing is fcrepo4/fcrepo-jcr/src/main/resources/config/rest-sessions/repository.json add
 
@@ -87,8 +80,5 @@ You can see the federation over your fedora 3 content at [http://localhost:8080/
 ## Caveats
 
 * right now, the number of objects in the repository that are exposed is reduced to 21 to simplify testing
-* datastream content doesn't yet behave properly
 * versions are not presented
-* a great deal of fedora 3 attributes and metadata aren't yet made available
-* no integration tests
 

@@ -1,43 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<foxml:digitalObject VERSION="1.1" PID="it:1" xmlns:foxml="info:fedora/fedora-system:def/foxml#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
-<foxml:objectProperties>
-<foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Integration Test Example 1"/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE=""/>
-<foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2013-09-23T21:25:35.350Z"/>
-<foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2013-09-23T21:26:44.641Z"/>
-</foxml:objectProperties>
-<foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
-<foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2013-09-23T21:25:35.350Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
-<foxml:xmlContent>
-<audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
-<audit:record ID="AUDREC1">
-<audit:process type="Fedora API-M"/>
-<audit:action>addDatastream</audit:action>
-<audit:componentID>SIMPLE_TEXT</audit:componentID>
-<audit:responsibility>fedoraAdmin</audit:responsibility>
-<audit:date>2013-09-23T21:26:44.641Z</audit:date>
-<audit:justification/>
-</audit:record>
-</audit:auditTrail>
-</foxml:xmlContent>
-</foxml:datastreamVersion>
-</foxml:datastream>
-<foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
-<foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record for this object" CREATED="2013-09-23T21:25:35.350Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="383">
-<foxml:xmlContent>
-<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-  <dc:title>Integration Test Example 1</dc:title>
-  <dc:identifier>it:1</dc:identifier>
-</oai_dc:dc>
-</foxml:xmlContent>
-</foxml:datastreamVersion>
-</foxml:datastream>
-<foxml:datastream ID="SIMPLE_TEXT" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
-<foxml:datastreamVersion ID="SIMPLE_TEXT.0" LABEL="The text &quot;simple text&quot;" CREATED="2013-09-23T21:26:44.641Z" MIMETYPE="text/xml" SIZE="12">
-<foxml:binaryContent> 
-              c2ltcGxlIHRleHQK
-</foxml:binaryContent> 
-</foxml:datastreamVersion>
-</foxml:datastream>
+<foxml:digitalObject VERSION="1.1" PID="it:1"
+                     xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+    <foxml:objectProperties>
+        <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+        <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Integration Test Example 1"/>
+        <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="fedoraAdmin, johnDoe"/>
+        <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2013-09-23T21:25:35.350Z"/>
+        <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2013-10-01T18:12:37.126Z"/>
+    </foxml:objectProperties>
+    <foxml:datastream ID="AUDIT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="false">
+        <foxml:datastreamVersion ID="AUDIT.0" LABEL="Audit Trail for this object" CREATED="2013-09-23T21:25:35.350Z" MIMETYPE="text/xml" FORMAT_URI="info:fedora/fedora-system:format/xml.fedora.audit">
+            <foxml:xmlContent>
+                <audit:auditTrail xmlns:audit="info:fedora/fedora-system:def/audit#">
+                    <audit:record ID="AUDREC1">
+                        <audit:process type="Fedora API-M"/>
+                        <audit:action>addDatastream</audit:action>
+                        <audit:componentID>SIMPLE_TEXT</audit:componentID>
+                        <audit:responsibility>fedoraAdmin</audit:responsibility>
+                        <audit:date>2013-09-23T21:26:44.641Z</audit:date>
+                        <audit:justification></audit:justification>
+                    </audit:record>
+                    <audit:record ID="AUDREC2">
+                        <audit:process type="Fedora API-M"/>
+                        <audit:action>modifyObject</audit:action>
+                        <audit:componentID></audit:componentID>
+                        <audit:responsibility>fedoraAdmin</audit:responsibility>
+                        <audit:date>2013-10-01T18:11:06.174Z</audit:date>
+                        <audit:justification></audit:justification>
+                    </audit:record>
+                    <audit:record ID="AUDREC3">
+                        <audit:process type="Fedora API-M"/>
+                        <audit:action>modifyObject</audit:action>
+                        <audit:componentID></audit:componentID>
+                        <audit:responsibility>fedoraAdmin</audit:responsibility>
+                        <audit:date>2013-10-01T18:11:36.543Z</audit:date>
+                        <audit:justification></audit:justification>
+                    </audit:record>
+                    <audit:record ID="AUDREC4">
+                        <audit:process type="Fedora API-M"/>
+                        <audit:action>modifyDatastreamByReference</audit:action>
+                        <audit:componentID>SIMPLE_TEXT</audit:componentID>
+                        <audit:responsibility>fedoraAdmin</audit:responsibility>
+                        <audit:date>2013-10-01T18:12:37.126Z</audit:date>
+                        <audit:justification></audit:justification>
+                    </audit:record>
+                    <audit:record ID="AUDREC5">
+                        <audit:process type="Fedora API-M"/>
+                        <audit:action>setDatastreamVersionable</audit:action>
+                        <audit:componentID>SIMPLE_TEXT</audit:componentID>
+                        <audit:responsibility>fedoraAdmin</audit:responsibility>
+                        <audit:date>2013-10-01T18:12:37.126Z</audit:date>
+                        <audit:justification></audit:justification>
+                    </audit:record>
+                </audit:auditTrail>
+            </foxml:xmlContent>
+        </foxml:datastreamVersion>
+    </foxml:datastream>
+    <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+        <foxml:datastreamVersion ID="DC1.0" LABEL="Dublin Core Record for this object" CREATED="2013-09-23T21:25:35.350Z" MIMETYPE="text/xml" FORMAT_URI="http://www.openarchives.org/OAI/2.0/oai_dc/" SIZE="383">
+            <foxml:xmlContent>
+                <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+                    <dc:title>Integration Test Example 1</dc:title>
+                    <dc:identifier>it:1</dc:identifier>
+                </oai_dc:dc>
+            </foxml:xmlContent>
+        </foxml:datastreamVersion>
+    </foxml:datastream>
+    <foxml:datastream ID="SIMPLE_TEXT" STATE="A" CONTROL_GROUP="M" VERSIONABLE="false">
+        <foxml:datastreamVersion ID="SIMPLE_TEXT.0" LABEL="The text &quot;simple text&quot;" CREATED="2013-09-23T21:26:44.641Z" MIMETYPE="text/xml" SIZE="12">
+            <foxml:binaryContent>
+                c2ltcGxlIHRleHQK
+            </foxml:binaryContent>
+        </foxml:datastreamVersion>
+        <foxml:datastreamVersion ID="SIMPLE_TEXT.1" LABEL="The text &quot;simple text&quot;" CREATED="2013-10-01T18:12:37.126Z" ALT_IDS="test simpletext" MIMETYPE="text/xml" FORMAT_URI="info:fedora/example-format-uri" SIZE="12">
+            <foxml:contentDigest TYPE="SHA-1" DIGEST="02b08743a6de9b368d95e4677ca53a2111cf87ff"/>
+            <foxml:binaryContent>
+                c2ltcGxlIHRleHQK
+            </foxml:binaryContent>
+        </foxml:datastreamVersion>
+    </foxml:datastream>
 </foxml:digitalObject>

@@ -16,23 +16,19 @@
 
 package org.fcrepo.connector.fedora3.rest;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.yourmediashelf.fedora.client.FedoraClient;
+import com.yourmediashelf.fedora.client.FedoraClientException;
+import com.yourmediashelf.fedora.client.FedoraCredentials;
 import com.yourmediashelf.fedora.generated.access.FedoraRepository;
 import org.fcrepo.connector.fedora3.Fedora3DataInterface;
 import org.fcrepo.connector.fedora3.FedoraDatastreamRecord;
 import org.fcrepo.connector.fedora3.FedoraObjectRecord;
 import org.slf4j.Logger;
 
-import com.yourmediashelf.fedora.client.FedoraClient;
-import com.yourmediashelf.fedora.client.FedoraClientException;
-import com.yourmediashelf.fedora.client.FedoraCredentials;
-import com.yourmediashelf.fedora.generated.access.DatastreamType;
-import com.yourmediashelf.fedora.generated.access.ObjectProfile;
+import java.net.MalformedURLException;
+import java.util.List;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * An implementation of Fedora3DataInterface that uses the REST API to access
@@ -73,23 +69,11 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
      */
     public FedoraObjectRecord getObjectByPid(String pid) {
         try {
-            DefaultFedoraObjectRecordImpl r
-                = new DefaultFedoraObjectRecordImpl();
-            r.pid = pid;
-            LOGGER.debug("Getting object profile for " + pid + ".");
-            ObjectProfile op = FedoraClient.getObjectProfile(pid)
-                    .execute(fc).getObjectProfile();
-            r.createdDate = op.getObjCreateDate()
-                    .toGregorianCalendar().getTime();
-            r.lastModDate = op.getObjLastModDate()
-                    .toGregorianCalendar().getTime();
-            List<String> datastreams = new ArrayList<String>();
-            for (DatastreamType ds : FedoraClient.listDatastreams(pid)
-                    .execute(fc).getDatastreams()) {
-                datastreams.add(ds.getDsid());
-            }
-            r.datastreams = datastreams;
-            return r;
+            return new ObjectProfileObjectRecordImpl(
+                    FedoraClient.getObjectProfile(pid)
+                    .execute(fc).getObjectProfile(),
+                    FedoraClient.listDatastreams(pid)
+                    .execute(fc).getDatastreams());
         } catch (FedoraClientException e) {
             throw new RuntimeException(e);
         }

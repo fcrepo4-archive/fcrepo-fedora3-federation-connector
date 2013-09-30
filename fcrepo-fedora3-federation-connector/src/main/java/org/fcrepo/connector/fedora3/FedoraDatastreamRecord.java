@@ -16,56 +16,62 @@
 
 package org.fcrepo.connector.fedora3;
 
-import java.io.InputStream;
-import java.util.Date;
+import java.util.List;
 
 /**
  * An interface to expose enough information about a Fedora 3 datastream to
- * import it into fedora 4.
+ * import it into fedora 4.  All metadata is reprsented here, even those fields
+ * that are meaningless in the Fedora 4 architecture.
  * 
  * @author Michael Durbin
  */
 public interface FedoraDatastreamRecord {
 
     /**
-     * Gets the pid of the object whose datastream is represented.
+     * Gets the pid of the object whose datastream is described by this record.
      */
     public String getPid();
 
     /**
-     * Gets the DSID.
+     * Gets the DSID for the datastream described by this record.
      */
     public String getId();
 
     /**
-     * Gets the MIME type.
+     * Get the control group for the datastream described by this record.  This
+     * value, while significant in Fedora 3, is only present as an indicator of
+     * historic status, since storage management is handled through another
+     * mechanism in Fedora 4.
      */
-    public String getMimeType();
+    public String getControlGroup();
 
     /**
-     * Gets the modification date for the datastream described by this record.
+     * Gets the state for the datastream described by this record.
      */
-    public Date getModificationDate();
+    public String getState();
 
     /**
-     * Gets the creation date for the datastream described by this record.
+     * Gets the 'versionable' value for the datastream described by this
+     * record.  This value does not imply anything about whether or how many
+     * versions of this datastream exists (there is always at least one) but
+     * instead was an indicator of whether an update to the described
+     * datastream in Fedora 3 would overwrite the current version or create a
+     * new one.  In the context of fedora 4, this value is just to preserve
+     * the historical record.
      */
-    public Date getCreatedDate();
+    public boolean getVersionable();
 
     /**
-     * Gets a new InputStream to access the content of the datastream.
+     * Returns a non-null, non-empty list of FedoraDatastreamVersionRecord
+     * objects representing the ordered history of this datastream from most
+     * recent to oldest.
      */
-    public InputStream getStream() throws Exception;
+    public List<FedoraDatastreamVersionRecord> getHistory();
 
     /**
-     * Gets the length in bytes of the content of the datastream.
+     * Gets the most recent version of the datastream.  This method is just a
+     * shortcut for getHistory().get(0).
      */
-    public long getContentLength();
+    public FedoraDatastreamVersionRecord getCurrentVersion();
 
-    /**
-     * Gets (or computes) a SHA-1 hash of the content of the datastream.
-     */
-    public byte[] getSha1() throws Exception;
-
-    // TODO: expose other properties
 }

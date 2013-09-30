@@ -20,10 +20,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * An interface that exposes information about an object in fedora 3.
+ * An interface that exposes information about an object in Fedora 3.
  * Implementations may vary about how they determine this information, but
  * all methods are expected to be implemented such that they return meaningful
  * values.
+ *
+ * All metadata is reprsented here, even those fields that are meaningless in
+ * the Fedora 4 architecture.
  * 
  * @author Michael Durbin
  */
@@ -35,14 +38,32 @@ public interface FedoraObjectRecord {
     public String getPid();
 
     /**
-     * Gets the modification date for the object described by this record.
+     * Gets the state of the object described by this record.  This may be
+     * null if not present.
      */
-    public Date getModificationDate();
+    public String getState();
+
+    /**
+     * Gets the label of the object described by this record.  This may be
+     * null if not present.
+     */
+    public String getLabel();
+
+    /**
+     * Gets the owner ID values for the object described by this record.  This
+     * may be null if not specified.
+     */
+    public List<String> getOwnerIds();
 
     /**
      * Gets the creation date for the object described by this record.
      */
     public Date getCreatedDate();
+
+    /**
+     * Gets the modification date for the object described by this record.
+     */
+    public Date getModificationDate();
 
     /**
      * Gets a list ids (fedora DSID) for the datastreams that exist on the

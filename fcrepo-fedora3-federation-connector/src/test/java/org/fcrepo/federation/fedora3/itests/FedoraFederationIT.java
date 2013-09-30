@@ -16,26 +16,10 @@
 
 package org.fcrepo.federation.fedora3.itests;
 
-import static java.lang.System.getProperty;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.slf4j.LoggerFactory.getLogger;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.jcr.LoginException;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-
+import com.hp.hpl.jena.graph.Node;
+import com.yourmediashelf.fedora.client.FedoraClient;
+import com.yourmediashelf.fedora.client.FedoraClientException;
 import com.yourmediashelf.fedora.client.FedoraCredentials;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -45,22 +29,19 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.fcrepo.connector.fedora3.ID;
-import org.fcrepo.connector.fedora3.rest.RESTFedoraDatastreamRecordImpl;
-import org.fcrepo.kernel.services.ObjectService;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
-import com.yourmediashelf.fedora.client.FedoraClient;
-import com.yourmediashelf.fedora.client.FedoraClientException;
-import com.yourmediashelf.fedora.client.response.IngestResponse;
-
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
+
+import static junit.framework.Assert.assertEquals;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * This integration test is incomplete but does include sufficient testing to
@@ -72,6 +53,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"/spring-test/test-container.xml"})
 public class FedoraFederationIT {
+
+    public static final String F3 = "http://fedora.info/definitions/v3/rest-api#";
+    public static final String FCREPO = "http://fedora.info/definitions/v4/repository#";
 
     protected static final int SERVER_PORT = Integer.parseInt(System.getProperty("test.port", "8080"));
 
@@ -120,16 +104,59 @@ public class FedoraFederationIT {
 
     @Test
     public void testObject() throws Exception {
-        String url = serverAddress + "rest/f3/" + ID.objectID(pid).getId();
-        HttpGet testContent = new HttpGet(url);
-        assertEquals("Fetching object at " + url, 200, getStatus(testContent));
+        ID object = ID.objectID(pid);
+        String url = serverAddress + "rest/f3/" + object.getId();
+        HttpGet testObject = new HttpGet(url);
+        HttpResponse response = execute(testObject);
+        assertEquals("Object request should return status 200.", 200, response.getStatusLine().getStatusCode());
+        /*  These tests would be great, but aren't yet functional...
+        Model m = ModelFactory.createDefaultModel().read(response.getEntity().getContent(), serverAddress + "rest/","TURTLE");
+        Resource r = m.getResource(url);
+
+        assertNotNull("Resource should be described.", r);
+        assertEquals("Check parent", serverAddress + "rest/f3", r.getProperty(m.getProperty(FCREPO, "hasParent")).getObject().toString());
+        assertEquals("Check object pid", "it:1", r.getProperty(m.getProperty(F3, "pid")).getString());
+        assertEquals("Check object state.", "A", r.getProperty(m.getProperty(F3, "objState")).getString());
+        assertEquals("Check object label.", "Integration Test Example 1", r.getProperty(m.getProperty(F3, "objLabel")).getString());
+        assertEquals("Check object ownerId.", "fedoraAdmin", r.getProperty(m.getProperty(F3, "objOwnerId")).getString());
+        assertNodeIsDate(r.getProperty(m.getProperty(F3, "objCreatedDate")).getObject().asNode(), "2013-09-23T21:25:35.35Z", "createdDate");
+        assertNodeIsDate(r.getProperty(m.getProperty(F3, "objLastModifiedDate")).getObject().asNode(), "2013-10-01T18:56:56.998Z", "lastModifiedDate");
+        */
+    }
+
+    private void assertNodeIsDate(Node node, String dateStr, String label) {
+        assertEquals("Check object " + label + " type.", "http://www.w3.org/2001/XMLSchema#dateTime", node.getLiteralDatatypeURI());
+        assertEquals("Check object " + label + " literal.", dateStr, node.getLiteralValue().toString());
     }
 
     @Test
     public void testDatastream() throws Exception {
-        String url = serverAddress + "rest/f3/" + ID.datastreamID(pid, dsid).getId();
+        ID ds = ID.datastreamID(pid, dsid);
+        String url = serverAddress + "rest/f3/" + ds.getId();
         HttpGet testDatastream = new HttpGet(url);
-        assertEquals("Fetching datastream at " + url, 200, getStatus(testDatastream));
+        HttpResponse response = execute(testDatastream);
+        assertEquals("Datastream request should return status 200.", 200, response.getStatusLine().getStatusCode());
+        /*  These tests would be great, but aren't yet functional...
+        Model m = ModelFactory.createDefaultModel().read(response.getEntity().getContent(), serverAddress + "rest/","TURTLE");
+        Resource r = m.getResource(url);
+        assertNotNull("Resource should be described.", r);
+        assertEquals("Check parent", serverAddress + "rest/f3/" + ds.getParentId(), r.getProperty(m.getProperty(FCREPO, "hasParent")).getObject().toString());
+        assertEquals("Check datastream dsid", "SIMPLE_TEXT", r.getProperty(m.getProperty(F3, "dsid")).getString());
+        assertEquals("Check datastream control group.", "M", r.getProperty(m.getProperty(F3, "controlGroup")).getString());
+        assertEquals("Check datastream state.", "A", r.getProperty(m.getProperty(F3, "dsState")).getString());
+        assertEquals("Check datastream versionable.", false, r.getProperty(m.getProperty(F3, "dsVersionable")).getBoolean());
+
+        assertEquals("Check datastream version id.", "SIMPLE_TEXT.1", r.getProperty(m.getProperty(F3, "dsVersionId")).getString());
+        assertEquals("Check datastream label.", "", r.getProperty(m.getProperty(F3, "dsLabel")).getString());
+        assertNodeIsDate(r.getProperty(m.getProperty(F3, "dsCreatedDate")).getObject().asNode(), "2013-10-01T18:12:37.126Z", "createdDate");
+
+        assertEquals("Check datastream mime type.", "text/plain", r.getProperty(m.getProperty(F3, "dsMimeType")).getString());
+        assertNull("Check datastream formatURI.", r.getProperty(m.getProperty(F3, "dsFormatURI")));
+        assertNull("Check datastream altIds.", r.getProperty(m.getProperty(F3, "dsAltIds")));
+        //assertEquals("Check datastream size.", "12", r.getProperty(m.getProperty(F3, "dsSize")).getString());
+        assertEquals("Check datastream contentDigestType.", "SHA-1", r.getProperty(m.getProperty(F3, "dsContentDigestType")).getString());
+        //assertEquals("Check datastream contentDigestLabel.", "", r.getProperty(m.getProperty(F3, "dsContentDigest")).getString());
+        */
     }
 
     @Test

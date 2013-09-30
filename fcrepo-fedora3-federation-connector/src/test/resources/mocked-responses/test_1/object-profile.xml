@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objectProfile xmlns="http://www.fedora.info/definitions/1/0/access/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ http://www.fedora.info/definitions/1/0/objectProfile.xsd"
+    pid="test:1">
+    <objLabel>page 1</objLabel>
+    <objOwnerId>fedoraAdmin</objOwnerId>
+    <objModels>
+        <model>info:fedora/fedora-system:FedoraObject-3.0</model>
+    </objModels>
+    <objCreateDate>2011-04-28T22:26:20.911Z</objCreateDate>
+    <objLastModDate>2013-05-15T17:02:59.464Z</objLastModDate>
+    <objDissIndexViewURL>http://localhost:8080/fedora/objects/uva-lib%3A1074986/methods/fedora-system%3A3/viewMethodIndex</objDissIndexViewURL>
+    <objItemIndexViewURL>http://localhost:8080/fedora/objects/uva-lib%3A1074986/methods/fedora-system%3A3/viewItemIndex</objItemIndexViewURL>
+    <objState>A</objState>
+</objectProfile>
