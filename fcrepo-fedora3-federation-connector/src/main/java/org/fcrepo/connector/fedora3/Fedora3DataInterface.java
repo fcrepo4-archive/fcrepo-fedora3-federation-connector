@@ -16,6 +16,8 @@
 
 package org.fcrepo.connector.fedora3;
 
+import java.util.List;
+
 /**
  * An base class that encapsulates the logic to access content from a fedora 3
  * repository.  This abstract class, while exposing the methods neccessary to
@@ -41,7 +43,13 @@ public interface Fedora3DataInterface {
     /**
      * Gets a page of object pids that exist in the repository.
      */
-    public String[] getObjectPids(int offset, int pageSize);
+    public List<String> getObjectPids(int offset, int pageSize);
+
+    /**
+     * Gets the size (total number of objects) of the underlying fedora 3
+     * repository.
+     */
+    public long getSize();
 
     /**
      * Gets information about a given datastream for a given pid.

@@ -16,15 +16,7 @@
 
 package org.fcrepo.connector.fedora3;
 
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
-import javax.jcr.RepositoryException;
-
+import org.fcrepo.connector.fedora3.organizers.FlatTruncatedOrganizer;
 import org.fcrepo.connector.fedora3.rest.AbstractFedoraObjectRecord;
 import org.fcrepo.connector.fedora3.rest.RESTFedoraDatastreamRecordImplTest;
 import org.fcrepo.jcr.FedoraJcrTypes;
@@ -35,8 +27,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modeshape.jcr.federation.spi.DocumentWriter;
-import org.modeshape.jcr.federation.spi.PageKey;
 import org.modeshape.jcr.value.BinaryValue;
+
+import javax.jcr.RepositoryException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Michael Durbin
@@ -62,7 +61,7 @@ public class Fedora3FederationConnectorTest implements FedoraJcrTypes {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(mockF3.getObjectPids(anyInt(), anyInt())).thenReturn(new String[] { "changeme:1", "changeme:2" });
+        when(mockF3.getObjectPids(anyInt(), anyInt())).thenReturn(Arrays.asList(new String[] { "changeme:1", "changeme:2" }));
         FedoraObjectRecord changeme1 = new MockObjectRecord("changeme:1");
         when(mockF3.getObjectByPid("changeme:1")).thenReturn(changeme1);
         FedoraObjectRecord changeme2
@@ -78,6 +77,7 @@ public class Fedora3FederationConnectorTest implements FedoraJcrTypes {
 
         c = new MockedFedora3FederationConnector();
         c.f3 = mockF3;
+        c.organizer = new FlatTruncatedOrganizer(mockF3);
     }
 
     @Test
@@ -123,20 +123,14 @@ public class Fedora3FederationConnectorTest implements FedoraJcrTypes {
         BinaryValue callBack = c.getBinaryValue(contentId);
     }
 
-
-    @Test
-    public void testGetChildren() {
-        c.getChildren(new PageKey(ID.ROOT_ID.getId(), "0", 100));
-    }
-
     @Test
     public void testGetDocumentId() {
-        c.getDocumentId("/test");
+        Assert.assertEquals("Verify path to id transformation.", "/test", c.getDocumentId("/test"));
     }
 
     @Test
     public void testGetDocumentPathsById() {
-        c.getDocumentPathsById(ID.datastreamID("changeme:1", "DC").getId());
+        Assert.assertEquals("Verify id to document path transformation.", Collections.singletonList("/" + ID.datastreamID("changeme:1", "DC").getId()), c.getDocumentPathsById(ID.datastreamID("changeme:1", "DC").getId()));
     }
 
     /**

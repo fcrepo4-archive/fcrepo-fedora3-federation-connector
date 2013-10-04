@@ -1,7 +1,15 @@
 # Fedora 3 Federation Connector
 
-This fedoration connector allows exposure of fedora 3 content in a running fedora 3 repository
-to appear within a fedora 4 repository.  To use this code, you'd need to have access to a fedora 3 repository.
+This fedoration connector allows exposure of fedora 3 content in a running
+fedora 3 repository to appear within a fedora 4 repository.  To use this code,
+you'd need to have access to a fedora 3 repository.
+
+## Configuration requirements
+
+1.  Fedora 3 repository must be accessible through the REST API
+2.  Adminsitrative credentials must be provided that expose access to ALL content
+3.  The resource index must be enabled
+4.  The repository is expected to be unchanging while exposed through Fedora 4
 
 ## Organization
 
@@ -55,12 +63,8 @@ In the json file referenced in fcrepo4/fcrepo-webapp/src/main/resources/spring/r
 	     "fedoraUrl" : "http://localhost-or-wherever-your-fedora3-is/fedora",
 	     "username" : "your-fedora-username",
 	     "password" : "your-fedora-password",
-             "pageSize" : 10
 	  }
 	}
-
-Note: pageSize is optional and represents the size of pages of objects that are the child nodes of the
-repository node.
 
 ### Compile and install the code
 For this project, then each of the components modified above:
@@ -79,6 +83,6 @@ You can see the federation over your fedora 3 content at [http://localhost:8080/
 
 ## Caveats
 
-* right now, the number of objects in the repository that are exposed is reduced to 21 to simplify testing
 * versions are not presented
+* only a subset of repository content is visible
 

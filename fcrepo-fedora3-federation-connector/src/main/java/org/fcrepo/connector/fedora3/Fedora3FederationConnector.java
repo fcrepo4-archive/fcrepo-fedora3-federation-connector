@@ -16,6 +16,7 @@
 
 package org.fcrepo.connector.fedora3;
 
+import org.fcrepo.connector.fedora3.organizers.FlatTruncatedOrganizer;
 import org.fcrepo.connector.fedora3.rest.RESTFedora3DataImpl;
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.fcrepo.kernel.utils.ContentDigest;
@@ -23,8 +24,6 @@ import org.infinispan.schematic.document.Document;
 import org.modeshape.jcr.api.JcrConstants;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 import org.modeshape.jcr.federation.spi.DocumentWriter;
-import org.modeshape.jcr.federation.spi.PageKey;
-import org.modeshape.jcr.federation.spi.Pageable;
 import org.modeshape.jcr.federation.spi.ReadOnlyConnector;
 import org.modeshape.jcr.value.BinaryKey;
 import org.modeshape.jcr.value.BinaryValue;
@@ -48,7 +47,7 @@ import java.util.List;
  * @author Michael Durbin
  */
 public class Fedora3FederationConnector extends ReadOnlyConnector
-         implements Pageable, FedoraJcrTypes {
+         implements FedoraJcrTypes {
 
     private static final Logger LOGGER
         = LoggerFactory.getLogger(Fedora3FederationConnector.class);
@@ -56,6 +55,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
     private static final String NT_F3_REPOSITORY = "f3:repository";
     private static final String NT_F3_OBJECT = "f3:object";
     private static final String NT_F3_DATASTREAM = "f3:datastream";
+    private static final String NT_F3_GROUP = "f3:group";
 
     private static final String F3_PID = "f3:pid";
     private static final String F3_OBJ_STATE = "f3:objState";
@@ -105,12 +105,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
      */
     protected String password;
 
-    /**
-     * Set by reflection to the value in the ModeShape repository configuration
-     * json file, this member variables controls the size of the pages
-     * requested from the fedora 3 instance when listing children.
-     */
-    protected int pageSize = 20;
+    protected RepositoryOrganizer organizer;
 
     /**
      * {@inheritDoc}
@@ -145,6 +140,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
             throw new RepositoryException("Error starting fedora connector!",
                     t);
         }
+        organizer = new FlatTruncatedOrganizer(f3);
         LOGGER.trace("Initialized");
     }
 
@@ -156,11 +152,23 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         ID id = new ID(idStr);
         DocumentWriter writer = newDocument(idStr);
         writer.setNotQueryable();
-        if (id.isRootID()) {
+        if (organizer.isOrganizationalNode(idStr)) {
+            writer.setPrimaryType(JcrConstants.NT_FOLDER);
+            writer.addMixinType(NT_F3_GROUP);
+            for (String childId : organizer.getChildrenForId(idStr)) {
+                if (organizer.isOrganizationalNode(childId)) {
+                    writer.addChild(childId, childId);
+                } else {
+                    writer.addChild(ID.objectID(childId).getId(),
+                            ID.objectID(childId).getName());
+                }
+            }
+            return writer.document();
+        } else if (id.isRootID()) {
             // return a root object
             writer.setPrimaryType(JcrConstants.NT_FOLDER);
             writer.addMixinType(NT_F3_REPOSITORY);
-            addRepositoryChildren(writer, idStr, 0, pageSize);
+            addRepositoryChildren(writer, idStr);
             return writer.document();
         } else if (id.isObjectID()) {
             // return an object node
@@ -193,22 +201,14 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         }
     }
 
-    private void addRepositoryChildren(DocumentWriter writer, String idStr,
-            int offset, int pageSize) {
+    private void addRepositoryChildren(DocumentWriter writer, String idStr) {
         ID id = new ID(idStr);
-        String[] childPids = f3.getObjectPids(offset, pageSize + 1);
+        List<String> childPids = organizer.getChildrenForId(idStr);
         for (String childPid : childPids) {
             ID childId = ID.objectID(childPid);
             LOGGER.trace("Added child " + childId.getId());
             writer.addChild(childId.getId(), childId.getName());
         }
-        // FIXME
-        // this is commented out because the UI requests all objects,
-        // which for most fedora repositories is too big a set.
-        //if (childPids.length <= pageSize + 1) {
-        //    writer.addPage(id, offset + pageSize, pageSize,
-        //            PageWriter.UNKNOWN_TOTAL_SIZE);
-        //}
     }
 
     /**
@@ -327,17 +327,60 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         }
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public String getDocumentId(String externalPath) {
         LOGGER.info("getDocumentId {}", externalPath);
-        return externalPath;
+        return getIdFromPath(externalPath);
+    }
+
+    /**
+     * The root path is always '/', organizational node paths are made up up
+     * any number of organizational node ids concatenated together, while all
+     * other nodes are made up of any number of organizational node paths
+     * concatenated together followed by an object, datastream or content ID.
+     *
+     * This method uses that to determine the id of the node at the given path.
+     */
+    protected String getIdFromPath(String path) {
+        int nextBreak = path.indexOf('/', 1);
+        if (nextBreak == -1) {
+            return path;
+        } else {
+            String nextChunk = path.substring(0, nextBreak);
+            if (organizer.isOrganizationalNode(nextChunk)) {
+                return getIdFromPath(path.substring(nextBreak));
+            } else {
+                return path;
+            }
+        }
     }
 
     @Override
     public Collection<String> getDocumentPathsById(String id) {
         LOGGER.info("getDocumentPathsById {}", id);
-        return Collections.singletonList(id);
+        return Collections.singletonList(buildPath(id, id));
     }
+
+    /**
+     * The root path is always '/', organizational node paths are made up up
+     * any number of organizational node ids concatenated together, while all
+     * other nodes are made up of any number of organizational node paths
+     * concatenated together followed by an object, datastream or content ID.
+     *
+     * This method uses that to build a path from an ID.
+     */
+    protected String buildPath(String path, String currentId) {
+        String parentId = organizer.getParentForId(currentId);
+        if (parentId == null) {
+            return path;
+        } else {
+            return buildPath(parentId + path, parentId);
+        }
+    }
+
+
 
     /**
      * Checks if a document with the given id exists.
@@ -347,27 +390,14 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
      */
     public boolean hasDocument(String idStr) {
         LOGGER.info("hasDocument {}", idStr);
+        if (organizer.isOrganizationalNode(idStr)) {
+            return true;
+        }
         ID id = new ID(idStr);
         return (id.isRootID()
                 || (id.isObjectID() && f3.doesObjectExist(id.getPid())
                 || ((id.isDatastreamID() || id.isContentID())
                 && f3.doesDatastreamExist(id.getPid(), id.getDSID()))));
-    }
-
-    @Override
-    public Document getChildren(PageKey pageKey) {
-        LOGGER.info("getChildren {}", pageKey);
-        ID parentId = new ID(pageKey.getParentId());
-        if (parentId.isRootID()) {
-            DocumentWriter writer = newDocument(parentId.getId());
-            writer.setPrimaryType(NT_F3_REPOSITORY);
-            addRepositoryChildren(writer, parentId.getId(),
-                    pageKey.getOffsetInt(), (int) pageKey.getBlockSize());
-            return writer.document();
-        } else {
-            // get the datastreams
-            throw new UnsupportedOperationException();
-        }
     }
 
     /**
