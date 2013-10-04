@@ -25,7 +25,11 @@ import org.fcrepo.connector.fedora3.FedoraDatastreamRecord;
 import org.fcrepo.connector.fedora3.FedoraObjectRecord;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -44,6 +48,12 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
     private FedoraClient fc;
 
     /**
+     * The cached size (number of objects) of the repository.  This allows
+     * subsequent calls to getSize() to be cheap.
+     */
+    private long size = -1L;
+
+    /**
      * Constructor with credentials necessary for a connection to fedora's REST
      * API.
      */
@@ -60,7 +70,8 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
                 .getRepositoryInfo();
         LOGGER.debug("Initialized connection to fedora "
                 + r.getRepositoryVersion() + " at "
-                + r.getRepositoryBaseURL() + ".");
+                + r.getRepositoryBaseURL() + " with the resource index enabled"
+                + " and " + getSize() + " objects.");
     }
 
 
@@ -93,20 +104,93 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
 
     /**
      * {@inheritDoc}
+     *
+     * The current implementation relies on the following ITQL query against
+     * the resource index to fetch results.
+     *
+     * <pre>
+     *  {@code
+     *    select     $object
+     *    from       <#ri>
+     *    where      $object <info:fedora/fedora-system:def/model#hasModel>
+     *        <info:fedora/fedora-system:FedoraObject-3.0>
+     *    order by   $object
+     *    limit      -pageSize-
+     *    offset     -offset-
+     *  }
+     * </pre>
      */
-    public String[] getObjectPids(int offset, int pageSize) {
+    public List<String> getObjectPids(int offset, int pageSize) {
+        String query = "select $object"
+                + " from <#ri>"
+                + " where $object"
+                + " <info:fedora/fedora-system:def/model#hasModel>"
+                + " <info:fedora/fedora-system:FedoraObject-3.0>"
+                + " order by $object"
+                + " limit " + pageSize
+                + " offset " + offset;
         try {
-            List<String> pids = FedoraClient.findObjects()
-                    .maxResults(pageSize).query("").pid().execute(fc).getPids();
-            String[] result = new String[pids.size()];
-            for (int i = 0; i < pids.size(); i ++) {
-                result[i] = pids.get(i);
+            ArrayList<String> pids = new ArrayList<String>();
+            BufferedReader r = new BufferedReader(
+                    new InputStreamReader(
+                            FedoraClient.riSearch(query).lang("itql")
+                                    .format("csv").execute(fc)
+                                    .getEntityInputStream()));
+            r.readLine().equals("\"object\"");
+            String objectUri = null;
+            while ((objectUri = r.readLine()) != null) {
+                pids.add(objectUri.substring("info:fedora/".length()));
             }
-            LOGGER.info("At least " + pids.size() + " objects found");
-            return result;
-        } catch (FedoraClientException ex) {
-            throw new RuntimeException(ex);
+            return pids;
+        } catch (FedoraClientException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The current implementation relies on the following ITQL query against
+     * the resource index to determine repository size.
+     *
+     * <pre>
+     *  {@code
+     *    select count(
+     *        select     $object
+     *        from       <#ri>
+     *        where      $object <info:fedora/fedora-system:def/model#hasModel>
+     *            <info:fedora/fedora-system:FedoraObject-3.0>)
+     *    from <#ri>
+     *    where $a $b $c
+     *  }
+     * </pre>
+     */
+    public long getSize() {
+        if (size == -1) {
+            String query = "select count("
+                    + " select $object"
+                    + " from <#ri>"
+                    + " where $object"
+                    + " <info:fedora/fedora-system:def/model#hasModel>"
+                    + " <info:fedora/fedora-system:FedoraObject-3.0>"
+                    + ") from <#ri> where $a $b $c";
+            try {
+                BufferedReader r = new BufferedReader(
+                        new InputStreamReader(
+                                FedoraClient.riSearch(query).lang("itql")
+                                        .format("csv").execute(fc)
+                                        .getEntityInputStream()));
+                r.readLine().equals("\"k0\"");
+                size =  Long.parseLong(r.readLine());
+            } catch (FedoraClientException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return size;
     }
 
     /**

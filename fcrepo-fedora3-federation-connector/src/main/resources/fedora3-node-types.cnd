@@ -149,4 +149,8 @@
   - * (undefined) multiple
   - * (undefined)
 
+/*
+ * An organizational group.
+ */
+[f3:group]
 
