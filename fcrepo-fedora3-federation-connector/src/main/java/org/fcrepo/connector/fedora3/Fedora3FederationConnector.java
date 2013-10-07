@@ -152,7 +152,13 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         ID id = new ID(idStr);
         DocumentWriter writer = newDocument(idStr);
         writer.setNotQueryable();
-        if (organizer.isOrganizationalNode(idStr)) {
+        if (id.isRootID()) {
+            // return a root object
+            writer.setPrimaryType(JcrConstants.NT_FOLDER);
+            writer.addMixinType(NT_F3_REPOSITORY);
+            addRepositoryChildren(writer, idStr);
+            return writer.document();
+        } else if (organizer.isOrganizationalNode(idStr) && !id.isRootID()) {
             writer.setPrimaryType(JcrConstants.NT_FOLDER);
             writer.addMixinType(NT_F3_GROUP);
             for (String childId : organizer.getChildrenForId(idStr)) {
@@ -163,12 +169,6 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
                             ID.objectID(childId).getName());
                 }
             }
-            return writer.document();
-        } else if (id.isRootID()) {
-            // return a root object
-            writer.setPrimaryType(JcrConstants.NT_FOLDER);
-            writer.addMixinType(NT_F3_REPOSITORY);
-            addRepositoryChildren(writer, idStr);
             return writer.document();
         } else if (id.isObjectID()) {
             // return an object node

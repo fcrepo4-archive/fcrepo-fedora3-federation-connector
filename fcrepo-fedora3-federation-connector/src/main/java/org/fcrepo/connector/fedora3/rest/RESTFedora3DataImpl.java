@@ -139,7 +139,7 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
             r.readLine().equals("\"object\"");
             String objectUri = null;
             while ((objectUri = r.readLine()) != null) {
-                pids.add(objectUri.substring(12));
+                pids.add(objectUri.substring("info:fedora/".length()));
             }
             return pids;
         } catch (FedoraClientException e) {
