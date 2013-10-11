@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>local-legacy-fedora3</artifactId>
-      <version>${fedora3.version}</version>
+      <version>${project.version}</version>
       <type>war</type>
       <scope>test</scope>
     </dependency>
