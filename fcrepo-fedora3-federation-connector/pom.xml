@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo-fedora3-federation</artifactId>
-    <version>4.0.0-alpha-2-SNAPSHOT</version>
+    <version>4.0.0-alpha-2</version>
   </parent>
   <artifactId>fcrepo-fedora3-federation-connector</artifactId>
   <name>${project.artifactId}</name>
@@ -76,44 +74,44 @@
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-auth-oauth</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
         <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-jcr</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-serialization</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
     </dependency>
     
     
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-api</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-auth-common</artifactId>
-      <version>${project.version}</version>
+      <version>4.0.0-alpha-2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

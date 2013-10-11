@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.0.0-alpha-2-SNAPSHOT</version>
+    <version>4.0.0-alpha-2</version>
   </parent>
   <artifactId>fcrepo-fedora3-federation</artifactId>
   <name>${project.artifactId}</name>
@@ -48,7 +46,7 @@
     <developerConnection>scm:git:git@github.com:futures/${project_name}.git
     </developerConnection>
     <url>https://github.com/futures/${project_name}</url>
-    <tag>HEAD</tag>
+    <tag>fcrepo-fedora3-federation-4.0.0-alpha-2</tag>
   </scm>
 
 </project>
