@@ -16,7 +16,7 @@
 
 package org.fcrepo.connector.fedora3;
 
-import org.fcrepo.connector.fedora3.organizers.FlatTruncatedOrganizer;
+import org.fcrepo.connector.fedora3.organizers.GroupingOrganizer;
 import org.fcrepo.connector.fedora3.rest.RESTFedora3DataImpl;
 import org.fcrepo.jcr.FedoraJcrTypes;
 import org.fcrepo.kernel.utils.ContentDigest;
@@ -95,7 +95,6 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
      * which this connector federates.  This user should have access to all
      * content that is meant to be exposed in the federation.
      */
-
     protected String username;
 
     /**
@@ -105,7 +104,13 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
      */
     protected String password;
 
-    protected RepositoryOrganizer organizer;
+    /**
+     * The RepositoyrOrganizer that determines how the objects in the
+     * underlying fedora repository are represented.  This is set by reflection
+     * to the object specified in the ModeShape repository configuration json
+     * file.
+     */
+    protected GroupingOrganizer organizer;
 
     /**
      * {@inheritDoc}
@@ -140,7 +145,7 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
             throw new RepositoryException("Error starting fedora connector!",
                     t);
         }
-        organizer = new FlatTruncatedOrganizer(f3);
+        organizer.initialize(f3);
         LOGGER.trace("Initialized");
     }
 
@@ -165,36 +170,37 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
                 if (organizer.isOrganizationalNode(childId)) {
                     writer.addChild(childId, childId);
                 } else {
-                    writer.addChild(ID.objectID(childId).getId(),
-                            ID.objectID(childId).getName());
+                    ID cid = new ID(childId);
+                    writer.addChild(cid.getId(), cid.getName());
                 }
             }
+            writer.setParent(organizer.getParentForId(idStr));
             return writer.document();
         } else if (id.isObjectID()) {
             // return an object node
             FedoraObjectRecord o = f3.getObjectByPid(id.getPid());
             writer.setPrimaryType(JcrConstants.NT_FOLDER);
-            writer.setParent(ID.ROOT_ID.getId());
             addObjectProperties(writer, o);
             addObjectChildren(writer, o);
+            writer.setParent(organizer.getParentForId(idStr));
             return writer.document();
         } else if (id.isDatastreamID()) {
             // return a datastream node
             writer.setPrimaryType(JcrConstants.NT_FILE);
-            writer.setParent(id.getParentId());
             FedoraDatastreamRecord ds
                 = f3.getDatastream(id.getPid(), id.getDSID());
             addDatastreamProperties(writer, ds);
             ID contentId = ID.contentID(id.getPid(), id.getDSID());
             writer.addChild(contentId.getId(), contentId.getName());
+            writer.setParent(id.getParentId(organizer));
             return writer.document();
         } else if (id.isContentID()) {
             // return a content node
             FedoraDatastreamRecord ds = f3.getDatastream(id.getPid(),
                     id.getDSID());
             writer.setPrimaryType(JcrConstants.NT_RESOURCE);
-            writer.setParent(id.getParentId());
             addDatastreamContentProperties(writer, ds);
+            writer.setParent(id.getParentId(organizer));
             return writer.document();
         } else {
             return null;
@@ -203,9 +209,8 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
 
     private void addRepositoryChildren(DocumentWriter writer, String idStr) {
         ID id = new ID(idStr);
-        List<String> childPids = organizer.getChildrenForId(idStr);
-        for (String childPid : childPids) {
-            ID childId = ID.objectID(childPid);
+        for (String childIdStr : organizer.getChildrenForId(idStr)) {
+            ID childId = new ID(childIdStr);
             LOGGER.trace("Added child " + childId.getId());
             writer.addChild(childId.getId(), childId.getName());
         }
@@ -350,7 +355,8 @@ public class Fedora3FederationConnector extends ReadOnlyConnector
         } else {
             String nextChunk = path.substring(0, nextBreak);
             if (organizer.isOrganizationalNode(nextChunk)) {
-                return getIdFromPath(path.substring(nextBreak));
+                String result = getIdFromPath(path.substring(nextBreak));
+                return result;
             } else {
                 return path;
             }

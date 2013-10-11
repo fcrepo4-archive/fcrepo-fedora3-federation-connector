@@ -63,14 +63,25 @@ In the json file referenced in fcrepo4/fcrepo-webapp/src/main/resources/spring/r
 	     "fedoraUrl" : "http://localhost-or-wherever-your-fedora3-is/fedora",
 	     "username" : "your-fedora-username",
 	     "password" : "your-fedora-password",
+         "organizer" : {
+            "classname" : "org.fcrepo.connector.fedora3.organizers.GroupingOrganizer",
+            "maxContainerSize": 4
+         }
+
 	  }
 	}
+
+Note: the "organizer" is configurable.  The GroupingOrganizer specified above
+      groups pids hierarchically guaranteeing that no group contains more than
+      the number specified in "maxContainerSize".  A large size will result in
+      longer load times per level in the hierarchy while a small size will
+      require navigation through more layers to find a particular object.
 
 ### Compile and install the code
 For this project, then each of the components modified above:
 
 ```bash
-$ mvn clean install
+$ mvn clean install -DskipTests -DskipCargo
 ```
 
 Within fcrepo-webapp:
@@ -84,5 +95,4 @@ You can see the federation over your fedora 3 content at [http://localhost:8080/
 ## Caveats
 
 * versions are not presented
-* only a subset of repository content is visible
 

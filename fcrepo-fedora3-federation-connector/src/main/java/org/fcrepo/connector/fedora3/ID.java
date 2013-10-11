@@ -92,16 +92,20 @@ public class ID implements FedoraJcrTypes {
      * Gets the id for the parent within the federation of the node with
      * this id.
      */
-    public String getParentId() {
+    public String getParentId(RepositoryOrganizer o) {
         if (isRootID()) {
             return null;
         } else if (isObjectID()) {
-            return ROOT_ID.id;
+            if (o == null) {
+                return ID.ROOT_ID.getId();
+            } else {
+                return o.getParentForId(getId());
+            }
         } else if (isDatastreamID()) {
-            return objectID(getPid()).id;
+            return ID.objectID(getPid()).getId();
         } else {
             assert(isContentID());
-            return datastreamID(getPid(), getDSID()).id;
+            return ID.datastreamID(getPid(), getDSID()).getId();
         }
     }
 
