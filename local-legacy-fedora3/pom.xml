@@ -7,7 +7,6 @@
 		<version>4.0.0-alpha-2-SNAPSHOT</version>
 	</parent>
 	<artifactId>local-legacy-fedora3</artifactId>
-    <version>${fedora3.version}</version>
 	<packaging>war</packaging>
 	<name>fedora 3 webapp</name>
 	<description>Fedora webapp</description>
