@@ -3,7 +3,7 @@
         <parent>
 		<groupId>org.fcrepo</groupId>
 		<artifactId>fcrepo-fedora3-federation</artifactId>
-		<version>4.0.0-alpha-2</version>
+		<version>4.0.0-alpha-3-SNAPSHOT</version>
 	</parent>
 	<artifactId>local-legacy-fedora3</artifactId>
 	<packaging>war</packaging>
