@@ -16,7 +16,7 @@
   <properties>
     <!-- Use ${project_name} instead of ${project.artifactId} to avoid incorrect
       replacements of "fcrepo4" in child modules (for scm, site-distribution -->
-    <project_name>${project.artifactId}</project_name>
+    <project_name>${project.artifactId}-connector</project_name>
 
     <fedora3.version>3.6.2</fedora3.version>
   </properties>
