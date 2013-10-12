@@ -246,6 +246,7 @@
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
         <configuration>
+          <skip>${skipCargo}</skip>
           <configuration>
             <properties>
               <cargo.servlet.port>${servlet.port}</cargo.servlet.port>

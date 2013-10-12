@@ -16,7 +16,7 @@
 
 package org.fcrepo.connector.fedora3;
 
-import org.fcrepo.connector.fedora3.organizers.FlatTruncatedOrganizer;
+import org.fcrepo.connector.fedora3.organizers.GroupingOrganizer;
 import org.fcrepo.connector.fedora3.rest.AbstractFedoraObjectRecord;
 import org.fcrepo.connector.fedora3.rest.RESTFedoraDatastreamRecordImplTest;
 import org.fcrepo.jcr.FedoraJcrTypes;
@@ -74,10 +74,14 @@ public class Fedora3FederationConnectorTest implements FedoraJcrTypes {
         when(mockF3.doesObjectExist("changeme:2")).thenReturn(true);
         when(mockF3.doesDatastreamExist("changeme:2", "DC")).thenReturn(true);
         when(mockF3.doesDatastreamExist("changeme:2", "RELS-EXT")).thenReturn(true);
+        when(mockF3.getSize()).thenReturn(2L);
 
         c = new MockedFedora3FederationConnector();
         c.f3 = mockF3;
-        c.organizer = new FlatTruncatedOrganizer(mockF3);
+        c.organizer = new GroupingOrganizer();
+        c.organizer.setMaxContainerSize(10);
+        c.organizer.initialize(mockF3);
+
     }
 
     @Test

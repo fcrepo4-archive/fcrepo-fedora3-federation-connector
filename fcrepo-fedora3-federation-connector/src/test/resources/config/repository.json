@@ -29,7 +29,10 @@
             "fedoraUrl" : "http://localhost:${servlet.port}/fedora",
             "username" : "fedoraAdmin",
             "password" : "fc",
-            "pageSize" : 5
+            "organizer" : {
+                "classname" : "org.fcrepo.connector.fedora3.organizers.GroupingOrganizer",
+                "maxContainerSize": 10
+            }
         }
     }
 }

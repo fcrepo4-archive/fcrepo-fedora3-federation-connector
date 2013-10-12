@@ -43,7 +43,7 @@ public interface Fedora3DataInterface {
     /**
      * Gets a page of object pids that exist in the repository.
      */
-    public List<String> getObjectPids(int offset, int pageSize);
+    public List<String> getObjectPids(long offset, int pageSize);
 
     /**
      * Gets the size (total number of objects) of the underlying fedora 3

@@ -120,7 +120,7 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
      *  }
      * </pre>
      */
-    public List<String> getObjectPids(int offset, int pageSize) {
+    public List<String> getObjectPids(long offset, int pageSize) {
         String query = "select $object"
                 + " from <#ri>"
                 + " where $object"
@@ -131,6 +131,9 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
                 + " offset " + offset;
         try {
             ArrayList<String> pids = new ArrayList<String>();
+            LOGGER.trace("Issuing risearch query for {} items"
+                    + " starting at offset {}.", pageSize, offset);
+            long start = System.currentTimeMillis();
             BufferedReader r = new BufferedReader(
                     new InputStreamReader(
                             FedoraClient.riSearch(query).lang("itql")
@@ -141,6 +144,9 @@ public class RESTFedora3DataImpl implements Fedora3DataInterface {
             while ((objectUri = r.readLine()) != null) {
                 pids.add(objectUri.substring("info:fedora/".length()));
             }
+            LOGGER.trace("RISearch query for {} items starting at offset {}"
+                    + " completed in {}ms.", pageSize, offset,
+                    (System.currentTimeMillis() - start));
             return pids;
         } catch (FedoraClientException e) {
             throw new RuntimeException(e);

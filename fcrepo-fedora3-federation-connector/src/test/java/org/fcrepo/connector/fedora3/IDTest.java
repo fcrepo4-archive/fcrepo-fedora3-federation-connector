@@ -35,7 +35,7 @@ public class IDTest {
                 ID.ROOT_ID.isDatastreamID());
         Assert.assertTrue("The root id should be \"/\".", ID.ROOT_ID.getId().equals("/"));
         Assert.assertTrue("The item with id \"/\" should be root.", new ID("/").isRootID());
-        Assert.assertNull("The root id should have no parent.", ID.ROOT_ID.getParentId());
+        Assert.assertNull("The root id should have no parent.", ID.ROOT_ID.getParentId(null));
         Assert.assertTrue("The root name should have at least one character.", ID.ROOT_ID.getName().length() >= 1);
         Assert.assertNull("The root id should not be associated with any pid.", ID.ROOT_ID.getPid());
         Assert.assertEquals("The id should be the same as the web path.", ID.ROOT_ID.getId(), ID.ROOT_ID.getURLPath());
@@ -54,7 +54,7 @@ public class IDTest {
         Assert.assertTrue("The object ID should retain the pid.",
                 id.getPid().equals(pid));
         Assert.assertTrue("The object ID be the parent of the root id.",
-                id.getParentId().equals(ID.ROOT_ID.getId()));
+                id.getParentId(null).equals(ID.ROOT_ID.getId()));
         Assert.assertNull("The object ID should not contain a dsid.",
                 id.getDSID());
         Assert.assertEquals("The id should be the same as the web path.",
@@ -76,7 +76,7 @@ public class IDTest {
         Assert.assertTrue("The datastream ID should retain the pid.",
                 id.getPid().equals(pid));
         Assert.assertEquals("The datastream ID be the parent of an object id.",
-                id.getParentId(), objectId.getId());
+                id.getParentId(null), objectId.getId());
         Assert.assertEquals("The datastream ID should contain a dsid.",
                 id.getDSID(), dsId);
         Assert.assertEquals("The id should be the same as the web path.",
@@ -100,7 +100,7 @@ public class IDTest {
         Assert.assertTrue("The content ID should retain the pid.",
                 id.getPid().equals(pid));
         Assert.assertEquals("The content ID be the child of a datastream id.",
-                id.getParentId(), datastreamId.getId());
+                id.getParentId(null), datastreamId.getId());
         Assert.assertEquals("The content ID should contain a dsid.",
                 id.getDSID(), dsId);
         Assert.assertEquals("The content ID should be the JCR constant.",
@@ -117,8 +117,8 @@ public class IDTest {
         @Test
         public void testNamePattern() {
             ID contentId = ID.contentID("changeme:1", "RELS-EXT");
-            Assert.assertEquals("An item's id should be the concatenation of its parent's id, a slash and it's name.", contentId.getId(), contentId.getParentId() + "/" + contentId.getName());
-            ID dsId = new ID(contentId.getParentId());
-            Assert.assertEquals("An item's id should be the concatenation of its parent's id, a slash and it's name.", dsId.getId(), dsId.getParentId() + "/" + dsId.getName());
+            Assert.assertEquals("An item's id should be the concatenation of its parent's id, a slash and it's name.", contentId.getId(), contentId.getParentId(null) + "/" + contentId.getName());
+            ID dsId = new ID(contentId.getParentId(null));
+            Assert.assertEquals("An item's id should be the concatenation of its parent's id, a slash and it's name.", dsId.getId(), dsId.getParentId(null) + "/" + dsId.getName());
         }
 }

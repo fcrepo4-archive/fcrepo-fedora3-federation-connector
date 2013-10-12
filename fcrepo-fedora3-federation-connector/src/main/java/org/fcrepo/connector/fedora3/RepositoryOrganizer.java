@@ -27,15 +27,22 @@ import java.util.List;
 public interface RepositoryOrganizer {
 
     /**
+     * Provides a Fedora3DataInterface whose contents will be organized by this
+     * implementation.
+     */
+    public void initialize(Fedora3DataInterface f3);
+
+    /**
      * Gets the id values of all children nodes for the node with the given id.
      * @throws IllegalArgumentException if the id is not an organizational node
      */
     public List<String> getChildrenForId(String id);
 
     /**
-     * Gets the id of the parent of the node with the given id.
-     * @throws IllegalArgumentException if the id has never been returned by a
-     * call to getChildrenForId.
+     * Gets the organizational node into which the object referred to by the
+     * passed id is organized.
+     * @throws IllegalArgumentException if the parent has never been returned
+     * by a call to getChildrenForId.
      */
     public String getParentForId(String id);
 
