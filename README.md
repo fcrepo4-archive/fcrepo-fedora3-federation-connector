@@ -44,13 +44,12 @@ In fcrepo4/fcrepo-webapp/pom.xml add
 	  <groupId>org.fcrepo</groupId>
 	  <artifactId>fcrepo-fedora3-federation-connector</artifactId>
 	  <version>${project.version}</version>
-	    <exclusions>
-	      <exclusion>
-	        <groupId>com.hp.hpl.jena</groupId>
-	        <artifactId>jena</artifactId>
-	      </exclusion>
-	    </exclusions>
-	  </dependency>
+	  <exclusions>
+	    <exclusion>
+	      <groupId>com.hp.hpl.jena</groupId>
+	      <artifactId>jena</artifactId>
+	    </exclusion>
+	  </exclusions>
 	</dependency>
 
 In the json file referenced in fcrepo4/fcrepo-webapp/src/main/resources/spring/repo.xml, 
