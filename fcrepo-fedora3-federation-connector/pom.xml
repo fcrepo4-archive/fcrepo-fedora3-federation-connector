@@ -12,7 +12,6 @@
       over fedora 3 content.
   </description>
   <properties>
-    <modeshape.version>3.4.0.Final</modeshape.version>
     <fedora.home>${project.build.directory}/fedora-home</fedora.home>
     <foxml.dir>${project.build.directory}/foxml</foxml.dir>
     <datastreams.dir>${project.build.directory}/datastreams</datastreams.dir>
