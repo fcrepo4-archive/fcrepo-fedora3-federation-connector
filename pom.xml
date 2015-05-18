@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.0.0-alpha-3-SNAPSHOT</version>
+    <version>4.1.2-SNAPSHOT</version>
   </parent>
   <artifactId>fcrepo-fedora3-federation</artifactId>
   <name>${project.artifactId}</name>
@@ -41,11 +41,11 @@
   </repositories>
 
   <scm>
-    <connection>scm:git:git://github.com/futures/${project_name}.git
+    <connection>scm:git:git://github.com/fcrepo4-labs/${project_name}.git
     </connection>
-    <developerConnection>scm:git:git@github.com:futures/${project_name}.git
+    <developerConnection>scm:git:git@github.com:fcrepo4-labs/${project_name}.git
     </developerConnection>
-    <url>https://github.com/futures/${project_name}</url>
+    <url>https://github.com/fcrepo4-labs/${project_name}</url>
     <tag>HEAD</tag>
   </scm>
 
